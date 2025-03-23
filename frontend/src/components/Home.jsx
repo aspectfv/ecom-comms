@@ -1,3 +1,40 @@
+import { useState, useEffect } from 'react';
+import {
+    Container,
+    Title,
+    Text,
+    Grid,
+    Card,
+    Image,
+    Group,
+    Box,
+    SimpleGrid,
+    Divider,
+    Anchor,
+    Space,
+    Tabs,
+    ActionIcon,
+    Burger,
+    Drawer,
+    ScrollArea,
+    Button,
+    HoverCard,
+    Center,
+    ThemeIcon,
+    UnstyledButton
+} from '@mantine/core';
+import {
+    IconBrandInstagram,
+    IconBrandTwitter,
+    IconBrandFacebook,
+    IconChevronDown,
+    IconShoppingCart,
+    IconHeart,
+    IconUser
+} from '@tabler/icons-react';
+import { Link, useLoaderData } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
+
 function ItemCard({ item }) {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -25,15 +62,88 @@ export default function Home() {
     const prelovedItems = items.filter(item => item.type === 'preloved');
     const brandnewItems = items.filter(item => item.type === 'brandnew');
 
+    // For the header
+    const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+
     return (
         <Box>
             {/* Header */}
-            <MantineHeader height={60} px="md">
-                <Flex h="100%" justify="space-between" align="center">
-                    <Title order={2}>Merca Finds</Title>
-                    <Anchor component={Link} to="/login">Login</Anchor>
-                </Flex>
-            </MantineHeader>
+            <Box component="header" height={60} px="md" style={{
+                borderBottom: '1px solid #e9ecef',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1000,
+                backgroundColor: 'white'
+            }}>
+                <Group h="100%" justify="space-between" align="center">
+                    <Group>
+                        <Title order={2}>Merca Finds</Title>
+                    </Group>
+
+                    <Group h="100%" gap={0} visibleFrom="sm">
+                        <Link to="/" style={{ textDecoration: 'none', padding: '0 15px' }}>
+                            <Text>Home</Text>
+                        </Link>
+                        <Link to="/preloved" style={{ textDecoration: 'none', padding: '0 15px' }}>
+                            <Text>Pre-loved</Text>
+                        </Link>
+                        <Link to="/brandnew" style={{ textDecoration: 'none', padding: '0 15px' }}>
+                            <Text>Brand New</Text>
+                        </Link>
+                        <Link to="/about" style={{ textDecoration: 'none', padding: '0 15px' }}>
+                            <Text>About</Text>
+                        </Link>
+                    </Group>
+
+                    <Group visibleFrom="sm">
+                        <ActionIcon variant="subtle">
+                            <IconHeart size={20} />
+                        </ActionIcon>
+                        <ActionIcon variant="subtle">
+                            <IconShoppingCart size={20} />
+                        </ActionIcon>
+                        <Anchor component={Link} to="/login">
+                            <Button variant="subtle">Login</Button>
+                        </Anchor>
+                    </Group>
+
+                    <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
+                </Group>
+            </Box>
+
+            <Drawer
+                opened={drawerOpened}
+                onClose={closeDrawer}
+                size="100%"
+                padding="md"
+                title="Navigation"
+                hiddenFrom="sm"
+                zIndex={1000000}
+            >
+                <ScrollArea h="calc(100vh - 80px)" mx="-md">
+                    <Divider my="sm" />
+
+                    <Link to="/" style={{ textDecoration: 'none', display: 'block', padding: '10px 15px' }}>
+                        <Text>Home</Text>
+                    </Link>
+                    <Link to="/preloved" style={{ textDecoration: 'none', display: 'block', padding: '10px 15px' }}>
+                        <Text>Pre-loved</Text>
+                    </Link>
+                    <Link to="/brandnew" style={{ textDecoration: 'none', display: 'block', padding: '10px 15px' }}>
+                        <Text>Brand New</Text>
+                    </Link>
+                    <Link to="/about" style={{ textDecoration: 'none', display: 'block', padding: '10px 15px' }}>
+                        <Text>About</Text>
+                    </Link>
+
+                    <Divider my="sm" />
+
+                    <Group justify="center" grow pb="xl" px="md">
+                        <Button variant="default" component={Link} to="/login">Log in</Button>
+                        <Button component={Link} to="/signup">Sign up</Button>
+                    </Group>
+                </ScrollArea>
+            </Drawer>
 
             {/* Main Content */}
             <Container size="xl" py="xl">
@@ -83,7 +193,7 @@ export default function Home() {
             </Container>
 
             {/* Footer */}
-            <Footer height="auto" p="md">
+            <Box component="footer" py="xl" px="md" bg="gray.1">
                 <Container size="xl">
                     <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="xl">
                         <Box>
@@ -92,7 +202,7 @@ export default function Home() {
                             <Text size="sm" mt="md">
                                 The ultimate one-stop platform for discovering a curated selection of pre-owned and brand-new items
                             </Text>
-                            <Image src={logo} alt="Merca Finds Logo" width={100} mt="md" />
+                            <Image src="https://placehold.co/100x50?text=Logo" alt="Merca Finds Logo" width={100} mt="md" />
                         </Box>
 
                         <Box>
@@ -109,11 +219,17 @@ export default function Home() {
 
                         <Box>
                             <Title order={4} mb="md">Follow Us</Title>
-                            <Flex gap="md">
-                                <Anchor href="#" target="_blank">Instagram</Anchor>
-                                <Anchor href="#" target="_blank">Twitter</Anchor>
-                                <Anchor href="#" target="_blank">Facebook</Anchor>
-                            </Flex>
+                            <Group gap="xs">
+                                <ActionIcon size="lg" variant="default" radius="xl">
+                                    <IconBrandInstagram size={18} stroke={1.5} />
+                                </ActionIcon>
+                                <ActionIcon size="lg" variant="default" radius="xl">
+                                    <IconBrandTwitter size={18} stroke={1.5} />
+                                </ActionIcon>
+                                <ActionIcon size="lg" variant="default" radius="xl">
+                                    <IconBrandFacebook size={18} stroke={1.5} />
+                                </ActionIcon>
+                            </Group>
                         </Box>
                     </SimpleGrid>
 
@@ -123,7 +239,7 @@ export default function Home() {
                         © 2025 Merca Finds. All rights reserved.
                     </Text>
                 </Container>
-            </Footer>
+            </Box>
         </Box>
     );
 }

@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { MantineProvider } from '@mantine/core';
 
 // Auth Components
 import Login from './components/auth/Login';
@@ -13,7 +12,7 @@ import StaffHome from './components/staff/StaffHome';
 import AdminHome from './components/admin/AdminHome';
 
 // Loaders and Actions
-import { homeLoader, } from './routes/homeRoutes';
+import { homeLoader } from './routes/homeRoutes';
 
 const router = createBrowserRouter([
     {
@@ -40,9 +39,7 @@ const router = createBrowserRouter([
                 <CustomerHome />
             </ProtectedRoute>
         ),
-        // loader: protectedLoader,
-    },
-    {
+        // loader: protectedLoader, }, {
         path: '/staff',
         element: (
             <ProtectedRoute requiredRole="staff">
@@ -76,9 +73,7 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <MantineProvider withGlobalStyles withNormalizeCSS>
-            <RouterProvider router={router} />
-        </MantineProvider>
+        <RouterProvider router={router} />
     );
 }
 
