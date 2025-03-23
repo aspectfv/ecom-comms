@@ -1,0 +1,290 @@
+// seeds.js
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const User = require('./models/User');
+const Item = require('./models/Item');
+const Cart = require('./models/Cart');
+const Order = require('./models/Order');
+const Sales = require('./models/Sales');
+require('dotenv').config();
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
+
+// Generate a random order number
+const generateOrderNumber = () => {
+  return 'MF' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
+};
+
+// Seed data
+const seedDatabase = async () => {
+  try {
+    // Clear existing data
+    await User.deleteMany({});
+    await Item.deleteMany({});
+    await Cart.deleteMany({});
+    await Order.deleteMany({});
+    await Sales.deleteMany({});
+    
+    console.log('Database cleared');
+
+    // Create users
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('password123', salt);
+    
+    const admin = await User.create({
+      email: 'admin@mercafinds.com',
+      password: hashedPassword,
+      fullName: 'Admin User',
+      contactNumber: '123-456-7890',
+      address: {
+        street: '123 Admin St',
+        city: 'Admin City'
+      },
+      role: 'admin'
+    });
+    
+    const staff = await User.create({
+      email: 'staff@mercafinds.com',
+      password: hashedPassword,
+      fullName: 'Staff User',
+      contactNumber: '123-456-7891',
+      address: {
+        street: '123 Staff St',
+        city: 'Staff City'
+      },
+      role: 'staff'
+    });
+    
+    const customer1 = await User.create({
+      email: 'customer1@example.com',
+      password: hashedPassword,
+      fullName: 'John Doe',
+      contactNumber: '123-456-7892',
+      address: {
+        street: '123 Customer St',
+        city: 'Customer City'
+      },
+      role: 'customer'
+    });
+    
+    const customer2 = await User.create({
+      email: 'customer2@example.com',
+      password: hashedPassword,
+      fullName: 'Jane Smith',
+      contactNumber: '123-456-7893',
+      address: {
+        street: '456 Customer Ave',
+        city: 'Customer Town'
+      },
+      role: 'customer'
+    });
+    
+    console.log('Users created');
+
+    // Create items
+    const items = await Item.insertMany([
+      {
+        itemCode: 'PL001',
+        name: 'Vintage Leather Jacket',
+        price: 89.99,
+        owner: 'Jane Collector',
+        type: 'preloved',
+        category: 'Clothing',
+        description: 'A beautiful vintage leather jacket from the 90s.',
+        condition: 'Minor wear on sleeves',
+        images: ['jacket1.jpg', 'jacket2.jpg'],
+        createdBy: admin._id
+      },
+      {
+        itemCode: 'PL002',
+        name: 'Antique Coffee Table',
+        price: 199.99,
+        owner: 'Vintage Homes',
+        type: 'preloved',
+        category: 'Furniture',
+        description: 'Solid wood antique coffee table with intricate carvings.',
+        condition: 'Some scratches on surface',
+        images: ['table1.jpg', 'table2.jpg'],
+        createdBy: staff._id
+      },
+      {
+        itemCode: 'PL003',
+        name: 'Retro Polaroid Camera',
+        price: 59.99,
+        owner: 'Camera Collectors',
+        type: 'preloved',
+        category: 'Electronics',
+        description: 'Functioning Polaroid camera from the 70s.',
+        condition: 'Excellent working condition',
+        images: ['camera1.jpg', 'camera2.jpg'],
+        createdBy: admin._id
+      },
+      {
+        itemCode: 'BN001',
+        name: 'Modern Desk Lamp',
+        price: 34.99,
+        owner: 'Home Essentials',
+        type: 'brandnew',
+        category: 'Home Decor',
+        description: 'Sleek, modern desk lamp with adjustable brightness.',
+        condition: 'New',
+        images: ['lamp1.jpg', 'lamp2.jpg'],
+        createdBy: staff._id
+      },
+      {
+        itemCode: 'BN002',
+        name: 'Wireless Headphones',
+        price: 129.99,
+        owner: 'Tech World',
+        type: 'brandnew',
+        category: 'Electronics',
+        description: 'High-quality wireless headphones with noise cancellation.',
+        condition: 'New',
+        images: ['headphones1.jpg', 'headphones2.jpg'],
+        createdBy: admin._id
+      },
+      {
+        itemCode: 'BN003',
+        name: 'Ceramic Plant Pot',
+        price: 19.99,
+        owner: 'Green Thumb',
+        type: 'brandnew',
+        category: 'Home Decor',
+        description: 'Handcrafted ceramic pot for indoor plants.',
+        condition: 'New',
+        images: ['pot1.jpg', 'pot2.jpg'],
+        createdBy: staff._id
+      }
+    ]);
+    
+    console.log('Items created');
+
+    // Create cart for customer1
+    const cart1 = await Cart.create({
+      userId: customer1._id,
+      items: [
+        {
+          itemId: items[0]._id,
+          quantity: 1
+        },
+        {
+          itemId: items[3]._id,
+          quantity: 2
+        }
+      ],
+      updatedAt: Date.now()
+    });
+    
+    // Create cart for customer2
+    const cart2 = await Cart.create({
+      userId: customer2._id,
+      items: [
+        {
+          itemId: items[2]._id,
+          quantity: 1
+        }
+      ],
+      updatedAt: Date.now()
+    });
+    
+    console.log('Carts created');
+
+    // Create completed order for customer1
+    const order1 = await Order.create({
+      orderNumber: generateOrderNumber(),
+      userId: customer1._id,
+      items: [
+        {
+          itemId: items[1]._id,
+          quantity: 1,
+          price: items[1].price
+        },
+        {
+          itemId: items[4]._id,
+          quantity: 1,
+          price: items[4].price
+        }
+      ],
+      deliveryDetails: {
+        fullName: customer1.fullName,
+        contactNumber: customer1.contactNumber,
+        street: customer1.address.street,
+        city: customer1.address.city,
+        mode: 'delivery',
+        date: new Date(Date.now() + 24 * 60 * 60 * 1000) // Next day delivery
+      },
+      paymentMethod: 'e-wallet',
+      subtotal: items[1].price + items[4].price,
+      total: items[1].price + items[4].price,
+      status: 'completed',
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+    });
+
+    // Create pending order for customer2
+    const order2 = await Order.create({
+      orderNumber: generateOrderNumber(),
+      userId: customer2._id,
+      items: [
+        {
+          itemId: items[3]._id,
+          quantity: 1,
+          price: items[3].price
+        }
+      ],
+      deliveryDetails: {
+        fullName: customer2.fullName,
+        contactNumber: customer2.contactNumber,
+        street: customer2.address.street,
+        city: customer2.address.city,
+        mode: 'pickup',
+        date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // 2 days from now
+      },
+      paymentMethod: 'cash',
+      subtotal: items[3].price,
+      total: items[3].price,
+      status: 'pending',
+      createdAt: Date.now()
+    });
+    
+    console.log('Orders created');
+
+    // Create sales records for completed order
+    await Sales.create({
+      orderId: order1._id,
+      itemCode: items[1].itemCode,
+      itemName: items[1].name,
+      owner: items[1].owner,
+      price: items[1].price,
+      completedAt: order1.completedAt,
+      total: items[1].price
+    });
+    
+    await Sales.create({
+      orderId: order1._id,
+      itemCode: items[4].itemCode,
+      itemName: items[4].name,
+      owner: items[4].owner,
+      price: items[4].price,
+      completedAt: order1.completedAt,
+      total: items[4].price
+    });
+    
+    console.log('Sales records created');
+    
+    console.log('Database seeded successfully');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error seeding database:', error);
+    process.exit(1);
+  }
+};
+
+// Run the seeding function
+seedDatabase();
