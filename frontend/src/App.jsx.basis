@@ -1,0 +1,194 @@
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
+
+// Customer Components
+import Home from './components/customer/Home';
+import ItemDetails from './components/customer/ItemDetails';
+import Cart from './components/customer/Cart';
+import Checkout from './components/customer/Checkout';
+import OrderHistory from './components/customer/OrderHistory';
+import OrderDetails from './components/customer/OrderDetails';
+
+// Staff Components
+import StaffInventory from './components/staff/Inventory';
+import StaffAddListing from './components/staff/AddListing';
+
+// Admin Components
+import AdminInventory from './components/admin/Inventory';
+import AdminAddListing from './components/admin/AddListing';
+import AdminSales from './components/admin/Sales';
+
+// Auth Components
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
+// Layout Components
+import CustomerLayout from './components/layouts/CustomerLayout';
+import StaffLayout from './components/layouts/StaffLayout';
+import AdminLayout from './components/layouts/AdminLayout';
+
+// Loaders and Actions
+import { loginLoader, loginAction, logoutAction, rootLoader } from './routes/authRoutes';
+import { registerAction, registerLoader } from './routes/registerRoutes';
+import {
+    itemsLoader,
+    itemDetailsLoader,
+    cartLoader,
+    cartAction,
+    checkoutLoader,
+    checkoutAction,
+    orderHistoryLoader,
+    orderDetailsLoader
+} from './routes/customerRoutes';
+import {
+    staffInventoryLoader,
+    staffInventoryAction,
+    addListingLoader,
+    addListingAction
+} from './routes/staffRoutes';
+import {
+    adminInventoryLoader,
+    adminInventoryAction,
+    adminSalesLoader,
+    adminSalesAction
+} from './routes/adminRoutes';
+import { protectedLoader } from './routes/protectedRoutes';
+
+const router = createBrowserRouter([
+    {
+        path: '/login',
+        element: <Login />,
+        action: loginAction,
+        loader: loginLoader,
+    },
+    {
+        path: '/register',
+        element: <Register />,
+        action: registerAction,
+        loader: registerLoader,
+    },
+    {
+        path: '/',
+        element: <CustomerLayout />,
+        children: [
+            {
+                index: true,
+                element: <Home />,
+                loader: itemsLoader,
+            },
+            {
+                path: 'item/:id',
+                element: <ItemDetails />,
+                loader: itemDetailsLoader,
+            },
+            {
+                path: 'cart',
+                element: <Cart />,
+                loader: cartLoader,
+                action: cartAction,
+            },
+            {
+                path: 'checkout',
+                element: (
+                    <ProtectedRoute requiredRole="customer">
+                        <Checkout />
+                    </ProtectedRoute>
+                ),
+                loader: checkoutLoader,
+                action: checkoutAction,
+            },
+            {
+                path: 'orders',
+                element: (
+                    <ProtectedRoute requiredRole="customer">
+                        <OrderHistory />
+                    </ProtectedRoute>
+                ),
+                loader: orderHistoryLoader,
+            },
+            {
+                path: 'orders/:id',
+                element: (
+                    <ProtectedRoute requiredRole="customer">
+                        <OrderDetails />
+                    </ProtectedRoute>
+                ),
+                loader: orderDetailsLoader,
+            },
+        ],
+    },
+    {
+        path: '/staff',
+        element: (
+            <ProtectedRoute requiredRole="staff">
+                <StaffLayout />
+            </ProtectedRoute>
+        ),
+        loader: protectedLoader,
+        children: [
+            {
+                index: true,
+                element: <StaffInventory />,
+                loader: staffInventoryLoader,
+                action: staffInventoryAction,
+            },
+            {
+                path: 'add-listing',
+                element: <StaffAddListing />,
+                loader: addListingLoader,
+                action: addListingAction,
+            },
+        ],
+    },
+    {
+        path: '/admin',
+        element: (
+            <ProtectedRoute requiredRole="admin">
+                <AdminLayout />
+            </ProtectedRoute>
+        ),
+        loader: protectedLoader,
+        children: [
+            {
+                index: true,
+                element: <Navigate to="/admin/inventory" replace />,
+            },
+            {
+                path: 'inventory',
+                element: <AdminInventory />,
+                loader: adminInventoryLoader,
+                action: adminInventoryAction,
+            },
+            {
+                path: 'add-listing',
+                element: <AdminAddListing />,
+                loader: addListingLoader,
+                action: addListingAction,
+            },
+            {
+                path: 'sales',
+                element: <AdminSales />,
+                loader: adminSalesLoader,
+                action: adminSalesAction,
+            },
+        ],
+    },
+    {
+        path: '/logout',
+        action: logoutAction,
+    },
+    {
+        path: '/',
+        loader: rootLoader,
+    },
+    {
+        path: '*',
+        element: <Navigate replace to="/" />,
+    },
+]);
+
+function App() {
+    return <RouterProvider router={router} />;
+}
+
+export default App;
