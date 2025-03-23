@@ -1,0 +1,117 @@
+company: merca finds
+header:
+    merca finds
+    home
+    cart
+footer:
+    merca finds
+    by mercadoria de argila
+    the ultimate one-stop platform for discovering a curated selection of pre-owned and brand-new items
+    support
+    address
+    exclusive@gmail.com
+    phone number
+    logo
+login page:
+    enter email
+    enter pass
+    login button
+    register button
+customer:
+    home page:
+        welcome to merca finds!
+        categories
+        pre loved items
+            each item has item name and price
+        brand new products
+    item page:
+        images
+        item name
+        category
+        preloved/brandnew
+        price
+        item description
+        condition: ex. slight discoloration
+        buy now
+        add to cart
+    cart:
+        list list view of
+            product
+            price
+        shopping cart total
+        proceed to checkout
+    billing details:
+        full name
+        contact number
+        street address
+        town/city
+        item view
+            list of items
+            subtotal
+        mode of delivery
+            either pickup or delivery
+        mode of payment
+            e-wallet
+            bank transfer
+            cash
+        place order
+        delivery date
+            same day delivery
+            courier service
+    orders view of the customer:
+        order number
+        date
+        total
+        status (completed/pending)
+staff:
+    sidebar:
+        inventory
+        logout
+    inventory list:
+        search item
+        item code
+        item name
+        category
+        type
+        price
+        owner
+        add new listing
+    add new listing view:
+        item code
+        name
+        price
+        owner
+        type
+        category
+        description
+        save new listing
+admin:
+    sidebar:
+        inventory
+        sales
+        logout
+    inventory list:
+        search item
+        item code
+        item name
+        category
+        type
+        price
+        owner
+        add new listing
+    add new listing view:
+        item code
+        name
+        price
+        owner
+        type
+        category
+        description
+        save new listing
+    sales:
+        filters
+        item code
+        item name
+        owner
+        date completed
+        total
