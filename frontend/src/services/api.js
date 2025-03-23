@@ -21,7 +21,7 @@ api.interceptors.request.use(config => {
 
 // Auth routes
 export const register = (userData) => api.post('/auth/register', userData);
-export const login = (username, password) => api.post('/auth/login', { username, password });
+export const login = (email, password) => api.post('/auth/login', { email, password });
 export const logout = () => api.get('/auth/logout');
 
 // Item routes
