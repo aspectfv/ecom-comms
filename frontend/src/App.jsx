@@ -13,21 +13,13 @@ import StaffHome from './components/staff/StaffHome';
 import AdminHome from './components/admin/AdminHome';
 
 // Loaders and Actions
-// import {
-//     loginAction,
-//     loginLoader,
-//     registerAction,
-//     registerLoader,
-//     logoutAction,
-//     protectedLoader
-// } from './routes/authRoutes';
+import { homeLoader, } from './routes/homeRoutes';
 
 const router = createBrowserRouter([
     {
         path: '/home',
         element: <Home />,
-        // action: loginAction,
-        // loader: loginLoader,
+        loader: homeLoader,
     },
     {
         path: '/login',
