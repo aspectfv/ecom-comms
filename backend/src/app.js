@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
 const path = require('path');
 const routes = require('./routes/index');
+const logger = require('./utils/logger');
 
 // Load environment variables
 require('dotenv').config();
@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(morgan('dev'));
+app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
