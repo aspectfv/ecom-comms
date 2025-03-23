@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const routes = require('./routes/index');
 const logger = require('./utils/logger');
+const errorHandler = require('./utils/errorHandler');
 
 // Load environment variables
 require('dotenv').config();
@@ -27,9 +28,6 @@ app.get('*', (req, res) => {
 })
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(err.status || 500).json({ message: err.message || 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 module.exports = app;
