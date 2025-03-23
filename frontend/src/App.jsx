@@ -13,7 +13,7 @@ import AdminHome from './components/admin/AdminHome';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
-import { loginLoader, loginAction } from './routes/authRoutes';
+import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 
 const router = createBrowserRouter([
     {
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
     {
         path: '/register',
         element: <Register />,
-        // action: registerAction,
+        action: registerAction,
         // loader: registerLoader,
     },
     {
