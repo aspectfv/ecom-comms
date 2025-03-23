@@ -1,26 +1,21 @@
 // seeds.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const User = require('./models/User');
-const Item = require('./models/Item');
-const Cart = require('./models/Cart');
-const Order = require('./models/Order');
-const Sales = require('./models/Sales');
+const User = require('../models/User');
+const Item = require('../models/Item');
+const Cart = require('../models/Cart');
+const Order = require('../models/Order');
+const Sales = require('../models/Sales');
+const generateOrderNumber = require('./orderNumberGenerator');
 require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
-
-// Generate a random order number
-const generateOrderNumber = () => {
-  return 'MF' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
-};
-
+  
 // Seed data
 const seedDatabase = async () => {
   try {
@@ -34,12 +29,9 @@ const seedDatabase = async () => {
     console.log('Database cleared');
 
     // Create users
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('password123', salt);
-    
     const admin = await User.create({
       email: 'admin@mercafinds.com',
-      password: hashedPassword,
+      password: 'password123',
       fullName: 'Admin User',
       contactNumber: '123-456-7890',
       address: {
@@ -51,7 +43,7 @@ const seedDatabase = async () => {
     
     const staff = await User.create({
       email: 'staff@mercafinds.com',
-      password: hashedPassword,
+      password: 'password123',
       fullName: 'Staff User',
       contactNumber: '123-456-7891',
       address: {
@@ -63,7 +55,7 @@ const seedDatabase = async () => {
     
     const customer1 = await User.create({
       email: 'customer1@example.com',
-      password: hashedPassword,
+      password: 'password123',
       fullName: 'John Doe',
       contactNumber: '123-456-7892',
       address: {
@@ -75,7 +67,7 @@ const seedDatabase = async () => {
     
     const customer2 = await User.create({
       email: 'customer2@example.com',
-      password: hashedPassword,
+      password: 'password123',
       fullName: 'Jane Smith',
       contactNumber: '123-456-7893',
       address: {
