@@ -1,4 +1,5 @@
 const express = require('express');
+
 const { authenticate, authorize } = require('../utils/auth');
 
 const adminRoutes = require('./adminRoutes');
