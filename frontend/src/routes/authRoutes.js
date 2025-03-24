@@ -69,12 +69,6 @@ export const registerAction = async ({ request }) => {
     }
 };
 
-// Handle logout
-export const logoutAction = () => {
-    localStorage.removeItem('user');
-    return redirect('/login');
-};
-
 // Protect routes based on authentication
 export const protectedLoader = () => {
     const user = localStorage.getItem('user');

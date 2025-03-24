@@ -77,10 +77,6 @@ const router = createBrowserRouter([
         // loader: registerLoader,
     },
     {
-        path: '/logout',
-        // action: logoutAction,
-    },
-    {
         path: '/admin',
         element: (
             <ProtectedRoute requiredRole="admin">
