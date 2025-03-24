@@ -4,7 +4,6 @@ const User = require('../models/User');
 const Item = require('../models/Item');
 const Cart = require('../models/Cart');
 const Order = require('../models/Order');
-const Sales = require('../models/Sales');
 const generateOrderNumber = require('./orderNumberGenerator');
 require('dotenv').config();
 
@@ -24,7 +23,6 @@ const seedDatabase = async () => {
     await Item.deleteMany({});
     await Cart.deleteMany({});
     await Order.deleteMany({});
-    await Sales.deleteMany({});
     
     console.log('Database cleared');
 
@@ -246,29 +244,6 @@ const seedDatabase = async () => {
     });
     
     console.log('Orders created');
-
-    // Create sales records for completed order
-    await Sales.create({
-      orderId: order1._id,
-      itemCode: items[1].itemCode,
-      itemName: items[1].name,
-      owner: items[1].owner,
-      price: items[1].price,
-      completedAt: order1.completedAt,
-      total: items[1].price
-    });
-    
-    await Sales.create({
-      orderId: order1._id,
-      itemCode: items[4].itemCode,
-      itemName: items[4].name,
-      owner: items[4].owner,
-      price: items[4].price,
-      completedAt: order1.completedAt,
-      total: items[4].price
-    });
-    
-    console.log('Sales records created');
     
     console.log('Database seeded successfully');
     process.exit(0);
