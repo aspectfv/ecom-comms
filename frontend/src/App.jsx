@@ -1,18 +1,18 @@
+import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 // Auth Components
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ItemDetail from './components/ItemDetail';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Main Components
 import Home from './components/Home';
-import CustomerHome from './components/customer/CustomerHome';
-import StaffHome from './components/staff/StaffHome';
-import AdminHome from './components/admin/AdminHome';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
+import { itemDetailLoader } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 
 const router = createBrowserRouter([
@@ -20,6 +20,12 @@ const router = createBrowserRouter([
         path: '/home',
         element: <Home />,
         loader: homeLoader,
+    },
+    {
+        path: '/item/:id',
+        element: <ItemDetail />,
+        loader: itemDetailLoader,
+        // You can add a loader here if needed
     },
     {
         path: '/login',
@@ -32,31 +38,6 @@ const router = createBrowserRouter([
         element: <Register />,
         action: registerAction,
         // loader: registerLoader,
-    },
-    {
-        path: '/customer',
-        element: (
-            <ProtectedRoute requiredRole="customer">
-                <CustomerHome />
-            </ProtectedRoute>
-        ),
-        // loader: protectedLoader, }, {
-        path: '/staff',
-        element: (
-            <ProtectedRoute requiredRole="staff">
-                <StaffHome />
-            </ProtectedRoute>
-        ),
-        // loader: protectedLoader,
-    },
-    {
-        path: '/admin',
-        element: (
-            <ProtectedRoute requiredRole="admin">
-                <AdminHome />
-            </ProtectedRoute>
-        ),
-        // loader: protectedLoader,
     },
     {
         path: '/logout',

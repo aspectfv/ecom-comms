@@ -1,35 +1,49 @@
 import { useState, useEffect } from 'react';
-import { Link, useLoaderData } from 'react-router-dom';
+import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 
 function ItemCard({ item }) {
     return (
-        <div className="card">
-            <div className="card-image">
-                <img
-                    src={item.images[0] || 'https://placehold.co/300x200?text=No+Image'}
-                    height={200}
-                    alt={item.name}
-                />
-            </div>
+        <Link to={`/item/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="card">
+                <div className="card-image">
+                    <img
+                        src={item.images[0] || 'https://placehold.co/300x200?text=No+Image'}
+                        height={200}
+                        alt={item.name}
+                    />
+                </div>
 
-            <div className="card-content">
-                <h3>{item.name}</h3>
-                <p className="price">${item.price.toFixed(2)}</p>
+                <div className="card-content">
+                    <h3>{item.name}</h3>
+                    <p className="price">${item.price.toFixed(2)}</p>
+                </div>
             </div>
-        </div>
+        </Link>
     );
 }
-
 export default function Home() {
     const items = useLoaderData();
     const prelovedItems = items.filter(item => item.type === 'preloved');
     const brandnewItems = items.filter(item => item.type === 'brandnew');
+    const navigate = useNavigate();
 
-    const [drawerOpened, setDrawerOpened] = useState(false);
     const [activeTab, setActiveTab] = useState('preloved');
+    const [user, setUser] = useState(null);
 
-    const toggleDrawer = () => setDrawerOpened(!drawerOpened);
-    const closeDrawer = () => setDrawerOpened(false);
+    // Check localStorage for user data on component mount
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            setUser(JSON.parse(userData));
+        }
+    }, []);
+
+    // Handle logout
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        navigate('/home');
+    };
 
     return (
         <div>
@@ -42,42 +56,23 @@ export default function Home() {
 
                     <nav className="desktop-nav">
                         <Link to="/">Home</Link>
-                        <Link to="/preloved">Pre-loved</Link>
-                        <Link to="/brandnew">Brand New</Link>
-                        <Link to="/about">About</Link>
+                        {!user ? (
+                            <Link to="/login">Login</Link>
+                        ) : (
+                            <>
+                                <span>Hello, {user.fullName}</span>
+                                {user.role === 'customer' && (
+                                    <Link to="/shopping-cart">Shopping Cart</Link>
+                                )}
+                                <button onClick={handleLogout}>Logout</button>
+                            </>
+                        )}
                     </nav>
 
                     <div className="desktop-actions">
-                        <button aria-label="Favorites">❤️</button>
-                        <button aria-label="Shopping Cart">🛒</button>
-                        <Link to="/login">Login</Link>
                     </div>
-
-                    <button className="mobile-menu-button" onClick={toggleDrawer}>
-                        ☰
-                    </button>
                 </div>
             </header>
-
-            {/* Mobile Drawer */}
-            {drawerOpened && (
-                <div className="mobile-drawer">
-                    <button className="close-button" onClick={closeDrawer}>✕</button>
-                    <h3>Navigation</h3>
-                    <hr />
-                    <nav className="mobile-nav">
-                        <Link to="/" onClick={closeDrawer}>Home</Link>
-                        <Link to="/preloved" onClick={closeDrawer}>Pre-loved</Link>
-                        <Link to="/brandnew" onClick={closeDrawer}>Brand New</Link>
-                        <Link to="/about" onClick={closeDrawer}>About</Link>
-                    </nav>
-                    <hr />
-                    <div className="mobile-actions">
-                        <Link to="/login" onClick={closeDrawer}>Log in</Link>
-                        <Link to="/signup" onClick={closeDrawer}>Sign up</Link>
-                    </div>
-                </div>
-            )}
 
             {/* Main Content */}
             <main className="container">
