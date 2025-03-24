@@ -29,8 +29,8 @@ export const addNewListingAction = async ({ request }) => {
         // Send the API request to create the item
         const response = await createItem(itemData);
         
-        // Redirect to the view details page for the newly created item
-        return redirect(`/${user.role}/item/${response.data.id}`);
+        // Redirect to the inventory page
+        return redirect(`/${user.role}/inventory`);
     } catch (error) {
         console.error('Error creating item:', error);
         return { error: error.response?.data?.message || 'Failed to create item' };
