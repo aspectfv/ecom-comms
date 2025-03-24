@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLoaderData, Link, useNavigate } from 'react-router-dom';
+import { useLoaderData, Link, Form } from 'react-router-dom';
 
 export default function ItemDetail() {
     const item = useLoaderData();
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -12,24 +11,6 @@ export default function ItemDetail() {
             setUser(JSON.parse(userData));
         }
     }, []);
-
-    const handleAddToCart = () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-        // Redirect to cart page after adding to cart (assuming cart logic is handled elsewhere)
-        navigate('/cart');
-    };
-
-    const handleBuyNow = () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-        // Redirect to checkout page (assuming cart addition is handled before checkout)
-        navigate('/checkout');
-    };
 
     if (!item) {
         return <div>Item not found</div>;
@@ -60,8 +41,14 @@ export default function ItemDetail() {
                 </div>
             )}
             <div>
-                <button onClick={handleBuyNow}>Buy Now</button>
-                <button onClick={handleAddToCart}>Add to Cart</button>
+                <Form method="post">
+                    <input type="hidden" name="actionType" value="buyNow" />
+                    <button type="submit">Buy Now</button>
+                </Form>
+                <Form method="post">
+                    <input type="hidden" name="actionType" value="addToCart" />
+                    <button type="submit">Add to Cart</button>
+                </Form>
             </div>
         </div>
     );

@@ -62,7 +62,7 @@ export default function Home() {
                             <>
                                 <span>Hello, {user.fullName}</span>
                                 {user.role === 'customer' && (
-                                    <Link to="/shopping-cart">Shopping Cart</Link>
+                                    <Link to="/cart">Shopping Cart</Link>
                                 )}
                                 <button onClick={handleLogout}>Logout</button>
                             </>

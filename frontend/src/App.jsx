@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 // Auth Components
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import ItemDetail from './components/ItemDetail';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Main Components
 import Home from './components/Home';
+import Cart from './components/Cart';
+import ItemDetail from './components/ItemDetail';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
-import { itemDetailLoader } from './routes/itemRoutes';
+import { cartLoader } from './routes/cartRoutes';
+import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 
 const router = createBrowserRouter([
@@ -25,7 +26,14 @@ const router = createBrowserRouter([
         path: '/item/:id',
         element: <ItemDetail />,
         loader: itemDetailLoader,
-        // You can add a loader here if needed
+        action: itemDetailAction,
+    },
+    {
+        path: '/cart',
+        element: (
+            <Cart />
+        ),
+        loader: cartLoader,
     },
     {
         path: '/login',
