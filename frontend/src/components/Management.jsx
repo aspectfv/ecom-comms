@@ -29,7 +29,7 @@ export default function Management() {
                         {/* Only admin can see Orders */}
                         {user && user.role === 'admin' && (
                             <div>
-                                <Link to="/admin/sales">Orders</Link>
+                                <Link to="/admin/orders">Orders</Link>
                             </div>
                         )}
                     </div>

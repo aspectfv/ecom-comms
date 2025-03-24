@@ -3,6 +3,21 @@ const Cart = require('../models/Cart');
 const Item = require('../models/Item');
 const generateOrderNumber = require('../utils/orderNumberGenerator'); // Import the utility
 
+// Get all orders (admin only)
+exports.getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .sort({ createdAt: -1 })
+            .populate('items.itemId')
+            .populate('userId', 'fullName email');
+
+        res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Create new order
 exports.createOrder = async (req, res) => {
     try {

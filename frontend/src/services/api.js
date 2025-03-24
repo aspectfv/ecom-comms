@@ -35,9 +35,10 @@ export const removeFromCart = (itemId) => api.delete(`/cart/remove/${itemId}`);
 export const updateCartItem = (itemId, updateData) => api.put(`/cart/update/${itemId}`, updateData);
 
 // Order routes
+export const getAllOrders = () => api.get('/orders'); 
 export const createOrder = (orderData) => api.post('/orders', orderData);
 export const getUserOrders = () => api.get('/orders/user');
 export const getOrderById = (orderId) => api.get(`/orders/${orderId}`);
-export const updateOrderStatus = (orderId, statusData) => api.put(`/orders/${orderId}/status`, statusData);
+export const updateOrder = (orderId, updateData) => api.put(`/orders/${orderId}`, updateData);
 
 export default api;

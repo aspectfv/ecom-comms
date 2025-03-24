@@ -6,6 +6,8 @@ const { authenticate, authorize } = require('../utils/auth');
 router.post('/', authenticate, orderController.createOrder);
 router.get('/user', authenticate, orderController.getUserOrders);
 router.get('/:id', authenticate, orderController.getOrderById);
-router.put('/:id/status', authenticate, authorize(['admin']), orderController.updateOrder);
+
+router.get('/', authenticate, authorize(['admin']), orderController.getAllOrders);
+router.put('/:id', authenticate, authorize(['admin']), orderController.updateOrder);
 
 module.exports = router;

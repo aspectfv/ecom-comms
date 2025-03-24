@@ -16,6 +16,7 @@ import Inventory from './components/Inventory';
 import Sales from './components/Sales';
 import AddNewListing from './components/AddNewListing';
 import ViewDetails from './components/ViewDetails';
+import AdminOrders from './components/AdminOrders';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
@@ -24,7 +25,10 @@ import { ordersLoader } from './routes/ordersRoutes';
 import { checkoutAction, checkoutLoader } from './routes/checkoutRoutes';
 import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
-import { inventoryLoader, addListingAction, viewDetailsLoader } from './routes/managementRoutes';
+import { inventoryLoader } from './routes/inventoryRoutes';
+import { adminOrdersLoader } from './routes/adminOrdersRoutes';
+import { addNewListingAction } from './routes/addNewListingRoutes';
+import { viewDetailsLoader, viewDetailsAction } from './routes/viewDetailsRoutes';
 
 const router = createBrowserRouter([
     {
@@ -94,14 +98,20 @@ const router = createBrowserRouter([
                 loader: inventoryLoader,
             },
             {
-                path: 'add-new-listing',
-                element: <AddNewListing />,
-                action: addListingAction,
+                path: 'orders', // Add this explicit route
+                element: <AdminOrders />,
+                loader: adminOrdersLoader,
             },
             {
-                path: 'item/:id',
+                path: 'add-new-listing',
+                element: <AddNewListing />,
+                action: addNewListingAction,
+            },
+            {
+                path: 'order/:id',
                 element: <ViewDetails />,
                 loader: viewDetailsLoader,
+                action: viewDetailsAction,
             },
         ],
     },
@@ -125,7 +135,7 @@ const router = createBrowserRouter([
             {
                 path: 'add-new-listing',
                 element: <AddNewListing />,
-                action: addListingAction,
+                action: addNewListingAction,
             },
             {
                 path: 'item/:id',
