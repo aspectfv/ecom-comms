@@ -10,10 +10,12 @@ import Home from './components/Home';
 import Cart from './components/Cart';
 import ItemDetail from './components/ItemDetail';
 import Checkout from './components/Checkout';
+import Orders from './components/Orders';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
 import { cartLoader } from './routes/cartRoutes';
+import { ordersLoader } from './routes/ordersRoutes';
 import { checkoutAction, checkoutLoader } from './routes/checkoutRoutes';
 import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
@@ -44,6 +46,13 @@ const router = createBrowserRouter([
         ),
         loader: checkoutLoader,
         action: checkoutAction,
+    },
+    {
+        path: '/orders',
+        element: (
+            <Orders />
+        ),
+        loader: ordersLoader,
     },
     {
         path: '/login',
