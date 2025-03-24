@@ -1,12 +1,19 @@
 import { Link, Outlet } from 'react-router-dom';
 
 export default function Management() {
-    const user = JSON.parse(localStorage.getItem('user')); // Get user data from localStorage
+    // Check localStorage for user data on component mount
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            setUser(JSON.parse(userData));
+        }
+    }, []);
 
     // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('user');
-        window.location.href = '/login'; // Redirect to login page
+        setUser(null);
+        navigate('/home');
     };
 
     return (

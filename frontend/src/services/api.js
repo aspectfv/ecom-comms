@@ -20,7 +20,6 @@ api.interceptors.request.use(config => {
 // Auth routes
 export const register = (userData) => api.post('/auth/register', userData);
 export const login = (email, password) => api.post('/auth/login', { email, password });
-export const logout = () => api.get('/auth/logout');
 
 // Item routes
 export const getAllItems = () => api.get('/items');
