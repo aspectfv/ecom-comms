@@ -28,6 +28,10 @@ import { inventoryLoader, salesLoader, addListingAction, viewDetailsLoader } fro
 
 const router = createBrowserRouter([
     {
+        path: '/',
+        element: <Navigate to="/home" replace />,
+    },
+    {
         path: '/home',
         element: <Home />,
         loader: homeLoader,

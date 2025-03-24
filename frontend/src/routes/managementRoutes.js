@@ -1,5 +1,5 @@
 import { redirect } from 'react-router-dom';
-import { getAdminInventory, getStaffInventory, getAdminSales, getItemById, createItem } from '../services/api';
+import { getItemById, createItem } from '../services/api';
 
 export const inventoryLoader = async () => {
     const user = localStorage.getItem('user');
@@ -22,16 +22,6 @@ export const inventoryLoader = async () => {
     } catch (error) {
         console.error('Error loading management items:', error);
         throw new Response('Failed to load items', { status: 500 });
-    }
-};
-
-export const salesLoader = async () => {
-    try {
-        const response = await getAdminSales();
-        return response.data;
-    } catch (error) {
-        console.error('Error loading sales data:', error);
-        throw new Response('Failed to load sales data', { status: 500 });
     }
 };
 
@@ -78,19 +68,5 @@ export const viewDetailsLoader = async ({ params }) => {
     } catch (error) {
         console.error('Error loading item details:', error);
         throw new Response('Failed to load item details', { status: 500 });
-    }
-};
-
-export const markAsSoldAction = async ({ request }) => {
-    try {
-        const formData = await request.formData();
-        const itemId = formData.get('id');
-        
-        await markItemAsSold(itemId);
-        
-        return { success: 'Item has been marked as sold successfully!' };
-    } catch (error) {
-        console.error('Error marking item as sold:', error);
-        return { error: error.response?.data?.message || 'Failed to mark item as sold' };
     }
 };
