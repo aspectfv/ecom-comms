@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 // Auth Components
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import ItemDetail from './components/ItemDetail';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Main Components
 import Home from './components/Home';
+import Cart from './components/Cart';
+import ItemDetail from './components/ItemDetail';
+import Checkout from './components/Checkout';
+import Orders from './components/Orders';
 import Management from './components/Management';
 import Inventory from './components/Inventory';
 import Sales from './components/Sales';
@@ -17,7 +19,10 @@ import ViewDetails from './components/ViewDetails';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
-import { itemDetailLoader } from './routes/itemRoutes';
+import { cartLoader } from './routes/cartRoutes';
+import { ordersLoader } from './routes/ordersRoutes';
+import { checkoutAction, checkoutLoader } from './routes/checkoutRoutes';
+import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 import { inventoryLoader, salesLoader, addListingAction, viewDetailsLoader } from './routes/managementRoutes';
 
@@ -31,7 +36,29 @@ const router = createBrowserRouter([
         path: '/item/:id',
         element: <ItemDetail />,
         loader: itemDetailLoader,
-        // You can add a loader here if needed
+        action: itemDetailAction,
+    },
+    {
+        path: '/cart',
+        element: (
+            <Cart />
+        ),
+        loader: cartLoader,
+    },
+    {
+        path: '/checkout',
+        element: (
+            <Checkout />
+        ),
+        loader: checkoutLoader,
+        action: checkoutAction,
+    },
+    {
+        path: '/orders',
+        element: (
+            <Orders />
+        ),
+        loader: ordersLoader,
     },
     {
         path: '/login',

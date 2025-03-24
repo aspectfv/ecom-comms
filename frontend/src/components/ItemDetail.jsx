@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useLoaderData, Link, useNavigate } from 'react-router-dom';
+import { useLoaderData, Link, Form } from 'react-router-dom';
+
+import Header from './Header'
+import Footer from './Footer'
 
 export default function ItemDetail() {
     const item = useLoaderData();
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -13,31 +15,13 @@ export default function ItemDetail() {
         }
     }, []);
 
-    const handleAddToCart = () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-        // Redirect to cart page after adding to cart (assuming cart logic is handled elsewhere)
-        navigate('/cart');
-    };
-
-    const handleBuyNow = () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-        // Redirect to checkout page (assuming cart addition is handled before checkout)
-        navigate('/checkout');
-    };
-
     if (!item) {
         return <div>Item not found</div>;
     }
 
     return (
         <div>
-            <Link to="/">Back to Home</Link>
+            <Header />
             <div>
                 {item.images && item.images.length > 0 ? (
                     <img src={item.images[0]} alt={item.name} />
@@ -60,9 +44,16 @@ export default function ItemDetail() {
                 </div>
             )}
             <div>
-                <button onClick={handleBuyNow}>Buy Now</button>
-                <button onClick={handleAddToCart}>Add to Cart</button>
+                <Form method="post">
+                    <input type="hidden" name="actionType" value="buyNow" />
+                    <button type="submit">Buy Now</button>
+                </Form>
+                <Form method="post">
+                    <input type="hidden" name="actionType" value="addToCart" />
+                    <button type="submit">Add to Cart</button>
+                </Form>
             </div>
+            <Footer />
         </div>
     );
 }
