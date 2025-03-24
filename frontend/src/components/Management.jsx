@@ -1,6 +1,8 @@
 import { Link, Outlet } from 'react-router-dom';
 
 export default function Management() {
+    const [user, setUser] = useState(null);
+    
     // Check localStorage for user data on component mount
     useEffect(() => {
         const userData = localStorage.getItem('user');
