@@ -9,10 +9,12 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './components/Home';
 import Cart from './components/Cart';
 import ItemDetail from './components/ItemDetail';
+import Checkout from './components/Checkout';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
 import { cartLoader } from './routes/cartRoutes';
+import { checkoutAction, checkoutLoader } from './routes/checkoutRoutes';
 import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
             <Cart />
         ),
         loader: cartLoader,
+    },
+    {
+        path: '/checkout',
+        element: (
+            <Checkout />
+        ),
+        loader: checkoutLoader,
+        action: checkoutAction,
     },
     {
         path: '/login',

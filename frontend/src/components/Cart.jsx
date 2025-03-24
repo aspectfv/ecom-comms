@@ -59,7 +59,7 @@ function Cart() {
             {items.length > 0 && (
                 <div>
                     Subtotal: ${subtotal.toFixed(2)}
-                    <button onClick={() => navigate('/orders')}>Proceed to Checkout</button>
+                    <button onClick={() => navigate('/checkout')}>Proceed to Checkout</button>
                 </div>
             )}
         </div>
