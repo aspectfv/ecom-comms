@@ -17,8 +17,6 @@ api.interceptors.request.use(config => {
     return config;
 });
 
-// PROOFREAD TO
-
 // Auth routes
 export const register = (userData) => api.post('/auth/register', userData);
 export const login = (email, password) => api.post('/auth/login', { email, password });
@@ -42,16 +40,5 @@ export const createOrder = (orderData) => api.post('/orders', orderData);
 export const getUserOrders = () => api.get('/orders/user');
 export const getOrderById = (orderId) => api.get(`/orders/${orderId}`);
 export const updateOrderStatus = (orderId, statusData) => api.put(`/orders/${orderId}/status`, statusData);
-
-// Admin routes
-export const getAdminInventory = () => api.get('/admin/inventory');
-export const getAdminSales = () => api.get('/admin/sales');
-
-// Sales routes
-export const getAllSales = () => api.get('/sales');
-export const filterSales = (filterParams) => api.get('/sales/filter', { params: filterParams });
-
-// Staff routes
-export const getStaffInventory = () => api.get('/staff/inventory');
 
 export default api;
