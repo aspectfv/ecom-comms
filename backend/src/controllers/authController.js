@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
     // Create new user
     user = new User({
       email,
-      password: password,
+      password,
       fullName,
       contactNumber,
       address

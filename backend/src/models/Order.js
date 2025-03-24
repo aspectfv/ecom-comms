@@ -34,4 +34,25 @@ const OrderSchema = new Schema({
     },
 })
 
+// Pre-save middleware to set completedAt date when status changes to 'completed'
+OrderSchema.pre('save', function(next) {
+    // Check if status is being modified to 'completed'
+    if (this.isModified('status') && this.status === 'completed' && !this.completedAt) {
+        this.completedAt = new Date();
+    }
+    next();
+});
+
+// Middleware for findOneAndUpdate and findByIdAndUpdate operations
+OrderSchema.pre('findOneAndUpdate', function(next) {
+    const update = this.getUpdate();
+    
+    // If updating to completed status and completedAt isn't set
+    if (update.status === 'completed' && !update.completedAt) {
+        update.completedAt = new Date();
+    }
+    
+    next();
+});
+
 module.exports = mongoose.model('Order', OrderSchema);

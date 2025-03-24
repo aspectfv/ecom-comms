@@ -96,36 +96,18 @@ exports.getOrderById = async (req, res) => {
 };
 
 // Update order status
-exports.updateOrderStatus = async (req, res) => {
+exports.updateOrder = async (req, res) => {
     try {
-        const { status } = req.body;
-
-        if (!['pending', 'completed'].includes(status)) {
-            return res.status(400).json({ message: 'Invalid status' });
-        }
-
-        const order = await Order.findById(req.params.id).populate('items.itemId');
-
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        // Update status
-        order.status = status;
-
-        // If marking as completed, add completion date
-        if (status === 'completed') {
-            order.completedAt = Date.now();
-        }
-
-        await order.save();
-
-        res.json({
-            message: `Order marked as ${status}`,
-            order
+        const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true,
         });
+
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        res.json(order);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(400).json({ message: error.message });
     }
 };
