@@ -93,6 +93,6 @@ function getRoleRedirect(role) {
             return '/staff';
         case 'customer':
         default:
-            return '/customer';
+            return '/home';
     }
 }
