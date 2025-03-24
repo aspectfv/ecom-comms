@@ -9,11 +9,17 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Main Components
 import Home from './components/Home';
+import Management from './components/Management';
+import Inventory from './components/Inventory';
+import Sales from './components/Sales';
+import AddNewListing from './components/AddNewListing';
+import ViewDetails from './components/ViewDetails';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
 import { itemDetailLoader } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
+import { inventoryLoader, salesLoader, addListingAction, viewDetailsLoader } from './routes/managementRoutes';
 
 const router = createBrowserRouter([
     {
@@ -44,12 +50,67 @@ const router = createBrowserRouter([
         // action: logoutAction,
     },
     {
-        path: '/',
-        element: <Navigate to="/home" replace />,
+        path: '/admin',
+        element: (
+            <ProtectedRoute requiredRole="admin">
+                <Management />
+            </ProtectedRoute>
+        ),
+        children: [
+            {
+                index: true, // Default child route
+                element: <Navigate to="/admin/inventory" replace />, // Redirect to /admin/inventory
+            },
+            {
+                path: 'inventory', // Add this explicit route
+                element: <Inventory />,
+                loader: inventoryLoader,
+            },
+            {
+                path: 'sales',
+                element: <Sales />,
+                loader: salesLoader,
+            },
+            {
+                path: 'add-new-listing',
+                element: <AddNewListing />,
+                action: addListingAction,
+            },
+            {
+                path: 'item/:id',
+                element: <ViewDetails />,
+                loader: viewDetailsLoader,
+            },
+        ],
     },
     {
-        path: '*',
-        element: <Navigate to="/" replace />,
+        path: '/staff',
+        element: (
+            <ProtectedRoute requiredRole="staff">
+                <Management />
+            </ProtectedRoute>
+        ),
+        children: [
+            {
+                index: true,
+                element: <Navigate to="/staff/inventory" replace />,
+            },
+            {
+                path: 'inventory',
+                element: <Inventory />,
+                loader: inventoryLoader,
+            },
+            {
+                path: 'add-new-listing',
+                element: <AddNewListing />,
+                action: addListingAction,
+            },
+            {
+                path: 'item/:id',
+                element: <ViewDetails />,
+                loader: viewDetailsLoader,
+            },
+        ],
     },
 ]);
 

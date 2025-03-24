@@ -1,0 +1,95 @@
+import { getAdminInventory, getStaffInventory, getAdminSales, getItemById, createItem } from '../services/api';
+
+export const inventoryLoader = async () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+        throw new Response('Unauthorized', { status: 401 });
+    }
+
+    const { role } = JSON.parse(user);
+
+    try {
+        if (role === 'admin') {
+            const response = await getAdminInventory();
+            return response.data;
+        } else if (role === 'staff') {
+            const response = await getStaffInventory();
+            return response.data;
+        } else {
+            throw new Response('Forbidden', { status: 403 });
+        }
+    } catch (error) {
+        console.error('Error loading management items:', error);
+        throw new Response('Failed to load items', { status: 500 });
+    }
+};
+
+export const salesLoader = async () => {
+    try {
+        const response = await getAdminSales();
+        return response.data;
+    } catch (error) {
+        console.error('Error loading sales data:', error);
+        throw new Response('Failed to load sales data', { status: 500 });
+    }
+};
+
+export const addListingAction = async ({ request }) => {
+    try {
+        const formData = await request.formData();
+        const itemData = {
+            itemCode: formData.get('itemCode'),
+            name: formData.get('name'),
+            price: Number(formData.get('price')),
+            owner: formData.get('owner'),
+            type: formData.get('type'),
+            category: formData.get('category'),
+            description: formData.get('description'),
+            condition: formData.get('condition') || undefined,
+        };
+
+        // Quick validation of essential numeric fields
+        if (isNaN(itemData.price) || itemData.price <= 0) {
+            return { 
+                error: 'Price must be a valid positive number',
+                values: itemData 
+            };
+        }
+        
+        // Get the user's role to determine where to redirect after successful creation
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        // Send the API request to create the item
+        await createItem(itemData);
+        
+        // Redirect to the inventory page based on user role
+        return redirect(`/${user.role}/inventory`);
+    } catch (error) {
+        console.error('Error creating item:', error);
+        return { error: error.response?.data?.message || 'Failed to create item' };
+    }
+};
+
+export const viewDetailsLoader = async ({ params }) => {
+    try {
+        const response = await getItemById(params.id);
+        return response.data;
+    } catch (error) {
+        console.error('Error loading item details:', error);
+        throw new Response('Failed to load item details', { status: 500 });
+    }
+};
+
+export const markAsSoldAction = async ({ request }) => {
+    try {
+        const formData = await request.formData();
+        const itemId = formData.get('id');
+        
+        await markItemAsSold(itemId);
+        
+        return { success: 'Item has been marked as sold successfully!' };
+    } catch (error) {
+        console.error('Error marking item as sold:', error);
+        return { error: error.response?.data?.message || 'Failed to mark item as sold' };
+    }
+};
