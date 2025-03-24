@@ -1,6 +1,9 @@
 import { useLoaderData } from "react-router-dom";
 import { useState } from "react";
 
+import Header from './Header'
+import Footer from './Footer'
+
 function Orders() {
     const orders = useLoaderData();
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -15,6 +18,7 @@ function Orders() {
 
     return (
         <div>
+            <Header />
             <h1>Your Orders</h1>
 
             {orders.length === 0 ? (
@@ -82,6 +86,7 @@ function Orders() {
                     </div>
                 </div>
             )}
+            <Footer />
         </div>
     );
 }

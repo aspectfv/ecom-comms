@@ -1,6 +1,9 @@
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { removeFromCart } from '../services/api';
 
+import Header from './Header'
+import Footer from './Footer'
+
 function Cart() {
     const cartData = useLoaderData();
     const items = cartData.items || [];
@@ -22,6 +25,7 @@ function Cart() {
 
     return (
         <div>
+            <Header />
             <h2>Shopping Cart</h2>
             {items.length === 0 ? (
                 <p>Your cart is empty.</p>
@@ -62,6 +66,7 @@ function Cart() {
                     <button onClick={() => navigate('/checkout')}>Proceed to Checkout</button>
                 </div>
             )}
+            <Footer />
         </div>
     );
 }

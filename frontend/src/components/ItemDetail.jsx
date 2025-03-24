@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData, Link, Form } from 'react-router-dom';
 
+import Header from './Header'
+import Footer from './Footer'
+
 export default function ItemDetail() {
     const item = useLoaderData();
     const [user, setUser] = useState(null);
@@ -18,7 +21,7 @@ export default function ItemDetail() {
 
     return (
         <div>
-            <Link to="/">Back to Home</Link>
+            <Header />
             <div>
                 {item.images && item.images.length > 0 ? (
                     <img src={item.images[0]} alt={item.name} />
@@ -50,6 +53,7 @@ export default function ItemDetail() {
                     <button type="submit">Add to Cart</button>
                 </Form>
             </div>
+            <Footer />
         </div>
     );
 }

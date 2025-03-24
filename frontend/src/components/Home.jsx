@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
+import Header from './Header'
+import Footer from './Footer'
 
 function ItemCard({ item }) {
     return (
@@ -47,38 +49,8 @@ export default function Home() {
 
     return (
         <div>
-            {/* Header */}
-            <header className="header">
-                <div className="header-content">
-                    <div className="logo">
-                        <h2>Merca Finds</h2>
-                    </div>
+            <Header />
 
-                    <nav className="desktop-nav">
-                        <Link to="/">Home</Link>
-                        {!user ? (
-                            <Link to="/login">Login</Link>
-                        ) : (
-                            <>
-                                <span>Hello, {user.fullName}</span>
-                                {user.role === 'customer' && (
-                                    <div>
-                                        <Link to="/cart">Shopping Cart</Link>
-                                        <br />
-                                        <Link to="/orders">Orders</Link>
-                                    </div>
-                                )}
-                                <button onClick={handleLogout}>Logout</button>
-                            </>
-                        )}
-                    </nav>
-
-                    <div className="desktop-actions">
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
             <main className="container">
                 <h1 className="page-title">Welcome to Merca Finds!</h1>
 
@@ -141,44 +113,7 @@ export default function Home() {
                 </section>
             </main>
 
-            {/* Footer */}
-            <footer className="footer">
-                <div className="footer-content">
-                    <div className="footer-grid">
-                        <div className="footer-section">
-                            <h3>Merca Finds</h3>
-                            <p>by Mercadoria de Argila</p>
-                            <p>The ultimate one-stop platform for discovering a curated selection of pre-owned and brand-new items</p>
-                            <img src="https://placehold.co/100x50?text=Logo" alt="Merca Finds Logo" width={100} />
-                        </div>
-
-                        <div className="footer-section">
-                            <h4>Support</h4>
-                            <p>123 Market Street</p>
-                            <p>San Francisco, CA 94103</p>
-                        </div>
-
-                        <div className="footer-section">
-                            <h4>Contact</h4>
-                            <p>exclusive@gmail.com</p>
-                            <p>+1 (555) 123-4567</p>
-                        </div>
-
-                        <div className="footer-section">
-                            <h4>Follow Us</h4>
-                            <div className="social-links">
-                                <button>📷</button>
-                                <button>🐦</button>
-                                <button>👥</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <p className="copyright">© 2025 Merca Finds. All rights reserved.</p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
