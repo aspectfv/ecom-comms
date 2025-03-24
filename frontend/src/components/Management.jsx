@@ -40,28 +40,7 @@ export default function Management() {
 
                 {/* Main Content */}
                 <div style={{ flex: 1, padding: '20px' }}>
-                    {/* Header with search and user info */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <form>
-                                <input 
-                                    type="text" 
-                                    placeholder="Looking for an item?" 
-                                />
-                                <button type="submit">SEARCH</button>
-                            </form>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div>
-                                <p>{user?.fullName || user?.username || 'Staff'}</p>
-                                <p>{user?.role || 'Staff'}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Render child routes here (Sales/Inventory/AddNewListing) */}
-                    <Outlet />
+                    <Outlet /> {/* Render child routes here */}
                 </div>
             </div>
         </div>

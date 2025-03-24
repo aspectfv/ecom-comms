@@ -1,3 +1,4 @@
+import { redirect } from 'react-router-dom';
 import { getAdminInventory, getStaffInventory, getAdminSales, getItemById, createItem } from '../services/api';
 
 export const inventoryLoader = async () => {
@@ -60,10 +61,10 @@ export const addListingAction = async ({ request }) => {
         const user = JSON.parse(localStorage.getItem('user'));
         
         // Send the API request to create the item
-        await createItem(itemData);
+        const response = await createItem(itemData);
         
-        // Redirect to the inventory page based on user role
-        return redirect(`/${user.role}/inventory`);
+        // Redirect to the view details page for the newly created item
+        return redirect(`/${user.role}/item/${response.data.id}`);
     } catch (error) {
         console.error('Error creating item:', error);
         return { error: error.response?.data?.message || 'Failed to create item' };

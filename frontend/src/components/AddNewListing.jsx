@@ -1,8 +1,17 @@
-import { Form, useActionData, Link } from 'react-router-dom';
+import { Form, useActionData, Link, redirect } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function AddNewListing() {
     const actionData = useActionData();
     const user = JSON.parse(localStorage.getItem('user')); // Get user data for role-based routing
+    
+    // Initialize state for the type field to control conditional rendering
+    const [itemType, setItemType] = useState(actionData?.values?.type || 'preloved');
+
+    // Handle type selection change
+    const handleTypeChange = (e) => {
+        setItemType(e.target.value);
+    };
 
     return (
         <div>
@@ -68,7 +77,8 @@ export default function AddNewListing() {
                     <select 
                         id="type" 
                         name="type" 
-                        defaultValue={actionData?.values?.type || 'preloved'}
+                        value={itemType}
+                        onChange={handleTypeChange}
                         required
                     >
                         <option value="preloved">Pre-loved</option>
@@ -85,16 +95,14 @@ export default function AddNewListing() {
                         required
                     >
                         <option value="">Select a category</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Home Decor">Home Decor</option>
-                        <option value="Furniture">Furniture</option>
                         <option value="Sports & Outdoor">Sports & Outdoor</option>
-                        <option value="Toys & Games">Toys & Games</option>
-                        <option value="School & Office">School & Office</option>
-                        <option value="Adult Clothing">Adult Clothing</option>
+                        <option value="Electronics">Electronics</option>
                         <option value="Kids' Costumes">Kids' Costumes</option>
+                        <option value="Toys & Games">Toys & Games</option>
                         <option value="Others">Others</option>
+                        <option value="Adult Clothing">Adult Clothing</option>
+                        <option value="School & Office">School & Office</option>
+                        <option value="Home & Lifestyle">Home & Lifestyle</option>
                     </select>
                 </div>
                 
@@ -108,8 +116,8 @@ export default function AddNewListing() {
                     ></textarea>
                 </div>
                 
-                {/* Condition field shows only when "preloved" is selected in the form data */}
-                {(!actionData?.values?.type || actionData?.values?.type === 'preloved') && (
+                {/* Condition field shows only when "preloved" is selected */}
+                {itemType === 'preloved' && (
                     <div>
                         <label htmlFor="condition">Condition:</label>
                         <textarea 
