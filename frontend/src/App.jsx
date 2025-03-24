@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, redirect } from 'react-router-dom';
 
 // Auth Components
 import Login from './components/auth/Login';
@@ -30,10 +30,33 @@ import { adminOrdersLoader } from './routes/adminOrdersRoutes';
 import { addNewListingAction } from './routes/addNewListingRoutes';
 import { viewDetailsLoader, viewDetailsAction } from './routes/viewDetailsRoutes';
 
+// Role-based redirect loader for the root path
+const rootLoader = () => {
+  // Get user data from localStorage
+  const userData = localStorage.getItem('user');
+  
+  if (userData) {
+    const user = JSON.parse(userData);
+    
+    // Redirect based on user role
+    switch (user.role) {
+      case 'admin':
+        return redirect('/admin');
+      case 'staff':
+        return redirect('/staff');
+      default:
+        return redirect('/home');
+    }
+  }
+  
+  // If no user is logged in, redirect to home
+  return redirect('/home');
+};
+
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to="/home" replace />,
+        loader: rootLoader,
     },
     {
         path: '/home',
@@ -93,12 +116,12 @@ const router = createBrowserRouter([
                 element: <Navigate to="/admin/inventory" replace />, // Redirect to /admin/inventory
             },
             {
-                path: 'inventory', // Add this explicit route
+                path: 'inventory',
                 element: <Inventory />,
                 loader: inventoryLoader,
             },
             {
-                path: 'orders', // Add this explicit route
+                path: 'orders',
                 element: <AdminOrders />,
                 loader: adminOrdersLoader,
             },
@@ -136,11 +159,6 @@ const router = createBrowserRouter([
                 path: 'add-new-listing',
                 element: <AddNewListing />,
                 action: addNewListingAction,
-            },
-            {
-                path: 'item/:id',
-                element: <ViewDetails />,
-                loader: viewDetailsLoader,
             },
         ],
     },
