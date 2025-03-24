@@ -1,5 +1,5 @@
 import { redirect } from 'react-router-dom';
-import { getItemById, createItem } from '../services/api';
+import { getAllItems, getItemById, createItem } from '../services/api';
 
 export const inventoryLoader = async () => {
     const user = localStorage.getItem('user');
@@ -8,19 +8,18 @@ export const inventoryLoader = async () => {
     }
 
     const { role } = JSON.parse(user);
+    
+    // Check if user has required role for this route
+    if (role !== 'admin' && role !== 'staff') {
+        throw new Response('Forbidden', { status: 403 });
+    }
 
     try {
-        if (role === 'admin') {
-            const response = await getAdminInventory();
-            return response.data;
-        } else if (role === 'staff') {
-            const response = await getStaffInventory();
-            return response.data;
-        } else {
-            throw new Response('Forbidden', { status: 403 });
-        }
+        // Use the existing getAllItems function instead of separate admin/staff inventory functions
+        const response = await getAllItems();
+        return response.data;
     } catch (error) {
-        console.error('Error loading management items:', error);
+        console.error('Error loading inventory items:', error);
         throw new Response('Failed to load items', { status: 500 });
     }
 };

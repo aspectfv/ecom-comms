@@ -24,7 +24,7 @@ import { ordersLoader } from './routes/ordersRoutes';
 import { checkoutAction, checkoutLoader } from './routes/checkoutRoutes';
 import { itemDetailLoader, itemDetailAction } from './routes/itemRoutes';
 import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
-import { inventoryLoader, salesLoader, addListingAction, viewDetailsLoader } from './routes/managementRoutes';
+import { inventoryLoader, addListingAction, viewDetailsLoader } from './routes/managementRoutes';
 
 const router = createBrowserRouter([
     {
@@ -92,11 +92,6 @@ const router = createBrowserRouter([
                 path: 'inventory', // Add this explicit route
                 element: <Inventory />,
                 loader: inventoryLoader,
-            },
-            {
-                path: 'sales',
-                element: <Sales />,
-                loader: salesLoader,
             },
             {
                 path: 'add-new-listing',

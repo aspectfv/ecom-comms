@@ -1,20 +1,12 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 export default function Management() {
-    const [user, setUser] = useState(null);
-    
-    // Check localStorage for user data on component mount
-    useEffect(() => {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            setUser(JSON.parse(userData));
-        }
-    }, []);
+    const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem('user')); // Get user data from localStorage
 
     // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('user');
-        setUser(null);
         navigate('/home');
     };
 
@@ -34,10 +26,10 @@ export default function Management() {
                             <Link to={`/${user.role}/inventory`}>Inventory</Link>
                         </div>
 
-                        {/* Only admin can see Sales */}
+                        {/* Only admin can see Orders */}
                         {user && user.role === 'admin' && (
                             <div>
-                                <Link to="/admin/sales">Sales</Link>
+                                <Link to="/admin/sales">Orders</Link>
                             </div>
                         )}
                     </div>
