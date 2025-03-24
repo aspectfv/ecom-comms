@@ -9,11 +9,19 @@ export default function AdminOrders() {
     const [searchParams, setSearchParams] = useSearchParams();
     
     // Initialize states from URL params
+    const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
     const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
     const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
 
     // Apply filters based on URL search params
     const filteredOrders = orders.filter(order => {
+        // Search query filter - case insensitive search across multiple fields
+        const searchQuery = searchParams.get('q') || '';
+        const matchesSearch = !searchQuery || 
+            order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.deliveryDetails.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (order.paymentMethod && order.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase()));
+        
         // Status filter
         const statusParam = searchParams.get('status') || '';
         const matchesStatus = !statusParam || order.status === statusParam.toLowerCase();
@@ -39,8 +47,14 @@ export default function AdminOrders() {
         }
         // All-Time doesn't need filtering
         
-        return matchesStatus && matchesPeriod;
+        return matchesSearch && matchesStatus && matchesPeriod;
     });
+
+    // Handle search form submission
+    const handleSearch = (e) => {
+        e.preventDefault(); // Prevent page reload
+        updateSearchParams('q', searchInput);
+    };
 
     // Update a single search parameter
     const updateSearchParams = (key, value) => {
@@ -53,6 +67,11 @@ export default function AdminOrders() {
         }
         
         setSearchParams(newParams);
+    };
+
+    // Handle input changes
+    const handleSearchInputChange = (e) => {
+        setSearchInput(e.target.value);
     };
 
     // Handle status selection change
@@ -71,6 +90,7 @@ export default function AdminOrders() {
     
     // Clear all filters
     const handleClearFilters = () => {
+        setSearchInput('');
         setSelectedStatus('');
         setSelectedPeriod('');
         setSearchParams({});
@@ -111,6 +131,33 @@ export default function AdminOrders() {
 
     return (
         <div>
+            {/* Header with search and user info */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <form onSubmit={handleSearch}>
+                        <input 
+                            type="text" 
+                            placeholder="Search orders..." 
+                            value={searchInput}
+                            onChange={handleSearchInputChange}
+                        />
+                        <button type="submit">SEARCH</button>
+                    </form>
+                    {(searchParams.size > 0) && (
+                        <button onClick={handleClearFilters} style={{ marginLeft: '10px' }}>
+                            Clear Filters
+                        </button>
+                    )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div>
+                        <p>{user?.fullName || user?.username || 'Admin'}</p>
+                        <p>{user?.role || 'Admin'}</p>
+                    </div>
+                </div>
+            </div>
+            
             <h1>Orders</h1> 
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -137,12 +184,6 @@ export default function AdminOrders() {
                         <option>This Year</option>
                         <option>All-Time</option>
                     </select>
-
-                    {(searchParams.size > 0) && (
-                        <button onClick={handleClearFilters} style={{ marginLeft: '10px' }}>
-                            Clear Filters
-                        </button>
-                    )}
                 </div>
 
                 <div>

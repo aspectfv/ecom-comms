@@ -120,6 +120,11 @@ export default function Inventory() {
         setSearchParams({}); // Clear all search params
     };
 
+    // Handle row click to navigate to item details
+    const handleRowClick = (itemId) => {
+        navigate(`/${user.role}/item/${itemId}`);
+    };
+
     return (
         <div>
             {/* Header with search and user info */}
@@ -198,29 +203,27 @@ export default function Inventory() {
                             <th>TYPE</th>
                             <th>PRICE</th>
                             <th>OWNER</th>
-                            <th>VIEW DETAILS</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredItems.length > 0 ? (
                             filteredItems.map(item => (
-                                <tr key={item.id}>
+                                <tr 
+                                    key={item.id} 
+                                    onClick={() => handleRowClick(item.id)} 
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <td>{item.itemCode}</td>
                                     <td>{item.name}</td>
                                     <td>{item.category}</td>
                                     <td>{item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</td>
                                     <td>${item.price.toFixed(2)}</td>
                                     <td>{item.owner}</td>
-                                    <td>
-                                        <Link to={`/${user.role}/item/${item.id}`}>
-                                            <button>👁️</button>
-                                        </Link>
-                                    </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
                                     No items found matching the selected filters.
                                 </td>
                             </tr>
