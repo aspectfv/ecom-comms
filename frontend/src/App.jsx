@@ -30,27 +30,31 @@ import { adminOrdersLoader } from './routes/adminOrdersRoutes';
 import { addNewListingAction } from './routes/addNewListingRoutes';
 import { viewDetailsLoader, viewDetailsAction } from './routes/viewDetailsRoutes';
 
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
+
 // Role-based redirect loader for the root path
 const rootLoader = () => {
-  // Get user data from localStorage
-  const userData = localStorage.getItem('user');
-  
-  if (userData) {
-    const user = JSON.parse(userData);
-    
-    // Redirect based on user role
-    switch (user.role) {
-      case 'admin':
-        return redirect('/admin');
-      case 'staff':
-        return redirect('/staff');
-      default:
-        return redirect('/home');
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+
+    if (userData) {
+        const user = JSON.parse(userData);
+
+        // Redirect based on user role
+        switch (user.role) {
+            case 'admin':
+                return redirect('/admin');
+            case 'staff':
+                return redirect('/staff');
+            default:
+                return redirect('/home');
+        }
     }
-  }
-  
-  // If no user is logged in, redirect to home
-  return redirect('/home');
+
+    // If no user is logged in, redirect to home
+    return redirect('/home');
 };
 
 const router = createBrowserRouter([
@@ -166,7 +170,10 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <RouterProvider router={router} />
+        <ThemeProvider theme={theme}>
+            <CssBaseline /> {/* This helps with consistent baseline styles */}
+            <RouterProvider router={router} />
+        </ThemeProvider>
     );
 }
 
