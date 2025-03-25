@@ -1,239 +1,345 @@
-import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  Box, 
+  Button, 
+  Card, 
+  Container, 
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider, 
+  FormControl, 
+  InputAdornment, 
+  InputLabel, 
+  MenuItem, 
+  Paper, 
+  Select, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TextField, 
+  Typography 
+} from '@mui/material';
+import { 
+  Search as SearchIcon, 
+  Clear as ClearIcon, 
+  Add as AddIcon, 
+  FileDownload as FileDownloadIcon,
+  Delete as DeleteIcon
+} from '@mui/icons-material';
 import { deleteItem } from '../services/api';
 
 export default function Inventory() {
-    const inventoryItems = useLoaderData(); // Load inventory items from the loader
-    const user = JSON.parse(localStorage.getItem('user')); // Get user data for role-based routing
-    const navigate = useNavigate();
+  const inventoryItems = useLoaderData();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
+  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Add state for dialog control
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const categories = ['All Categories', ...new Set(inventoryItems.map(item => item.category))].filter(Boolean);
+
+  const filteredItems = inventoryItems.filter(item => {
+    const searchQuery = searchParams.get('q') || '';
+    const matchesSearch = !searchQuery || 
+      item.itemCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.owner.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Use search params for state persistence in URL
-    const [searchParams, setSearchParams] = useSearchParams();
+    const categoryParam = searchParams.get('category') || '';
+    const matchesCategory = !categoryParam || item.category === categoryParam;
     
-    // Initialize states from URL params
-    const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
-    const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-    const [isDeleting, setIsDeleting] = useState(false); // Track delete operation state
+    return matchesSearch && matchesCategory;
+  });
 
-    // Extract unique categories from inventory items
-    const categories = ['Category', ...new Set(inventoryItems.map(item => item.category))].filter(Boolean);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    updateSearchParams('q', searchInput);
+  };
 
-    // Apply filters based on URL search params
-    const filteredItems = inventoryItems.filter(item => {
-        // Search query filter - case insensitive search across multiple fields
-        const searchQuery = searchParams.get('q') || '';
-        const matchesSearch = !searchQuery || 
-            item.itemCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.owner.toLowerCase().includes(searchQuery.toLowerCase());
-        
-        // Category filter
-        const categoryParam = searchParams.get('category') || '';
-        const matchesCategory = !categoryParam || item.category === categoryParam;
-        
-        return matchesSearch && matchesCategory;
-    });
+  const updateSearchParams = (key, value) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (value && value !== '') {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    
+    setSearchParams(newParams);
+  };
 
-    // Handle search form submission
-    const handleSearch = (e) => {
-        e.preventDefault(); // Prevent page reload
-        updateSearchParams('q', searchInput);
-    };
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
 
-    // Update a single search parameter
-    const updateSearchParams = (key, value) => {
-        const newParams = new URLSearchParams(searchParams);
-        
-        if (value && value !== '') {
-            newParams.set(key, value);
-        } else {
-            newParams.delete(key);
-        }
-        
-        setSearchParams(newParams);
-    };
+  const handleCategoryChange = (e) => {
+    const value = e.target.value === 'All Categories' ? '' : e.target.value;
+    setSelectedCategory(value);
+    updateSearchParams('category', value);
+  };
 
-    // Handle input changes
-    const handleSearchInputChange = (e) => {
-        setSearchInput(e.target.value);
-    };
+  const handleExportList = () => {
+    if (!filteredItems || filteredItems.length === 0) {
+      alert('No items to export.');
+      return;
+    }
 
-    // Handle category selection change
-    const handleCategoryChange = (e) => {
-        const value = e.target.value === 'Category' ? '' : e.target.value;
-        setSelectedCategory(value);
-        updateSearchParams('category', value);
-    };
+    const headers = ['ITEM CODE', 'ITEM NAME', 'CATEGORY', 'TYPE', 'PRICE', 'OWNER'];
+    const rows = filteredItems.map(item => [
+      item.itemCode,
+      item.name,
+      item.category,
+      item.type === 'preloved' ? 'Pre-loved' : 'Brand New',
+      `$${item.price.toFixed(2)}`,
+      item.owner
+    ]);
 
-    // Export inventory items as CSV
-    const handleExportList = () => {
-        if (!filteredItems || filteredItems.length === 0) {
-            alert('No items to export.');
-            return;
-        }
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
 
-        // Generate CSV content
-        const headers = ['ITEM CODE', 'ITEM NAME', 'CATEGORY', 'TYPE', 'PRICE', 'OWNER'];
-        const rows = filteredItems.map(item => [
-            item.itemCode,
-            item.name,
-            item.category,
-            item.type === 'preloved' ? 'Pre-loved' : 'Brand New',
-            `$${item.price.toFixed(2)}`,
-            item.owner
-        ]);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'inventory_list.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-        const csvContent = [
-            headers.join(','), // Add headers
-            ...rows.map(row => row.join(',')) // Add rows
-        ].join('\n');
+  const handleClearFilters = () => {
+    setSearchInput('');
+    setSelectedCategory('');
+    setSearchParams({});
+  };
 
-        // Create a Blob and download the file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'inventory_list.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+  // Step 1: Open dialog when delete button is clicked
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item);
+    setConfirmDialogOpen(true);
+  };
 
-    // Clear all filters
-    const handleClearFilters = () => {
-        setSearchInput('');
-        setSelectedCategory('');
-        setSearchParams({}); // Clear all search params
-    };
+  // Step 2: Cancel deletion and close dialog
+  const handleCancelDelete = () => {
+    setItemToDelete(null);
+    setConfirmDialogOpen(false);
+  };
 
-    // Handle item deletion
-    const handleDeleteItem = async (itemId, itemName) => {
-        // Confirm deletion
-        if (!window.confirm(`Are you sure you want to delete "${itemName}"?`)) {
-            return;
-        }
-        
-        try {
-            setIsDeleting(true);
-            await deleteItem(itemId);
-            // Refresh the page to update the list
-            navigate(0);
-        } catch (error) {
-            console.error('Error deleting item:', error);
-            alert('Failed to delete item. Please try again.');
-        } finally {
-            setIsDeleting(false);
-        }
-    };
+  // Step 3: Confirm and execute deletion
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      await deleteItem(itemToDelete.id);
+      
+      // Close dialog and refresh data
+      setConfirmDialogOpen(false);
+      setItemToDelete(null);
+      
+      // Refresh page to update inventory
+      navigate(0);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      alert('Failed to delete item. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
-    return (
-        <div>
-            {/* Header with search and user info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <form onSubmit={handleSearch}>
-                        <input 
-                            type="text" 
-                            placeholder="Looking for an item?" 
-                            value={searchInput}
-                            onChange={handleSearchInputChange}
-                        />
-                        <button type="submit">SEARCH</button>
-                    </form>
-                    {(searchParams.size > 0) && (
-                        <button onClick={handleClearFilters} style={{ marginLeft: '10px' }}>
-                            Clear Filters
-                        </button>
-                    )}
-                </div>
+  return (
+    <Container maxWidth={false} sx={{ p: 3 }}>
+      {/* Header with search and user info */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4
+        }}
+      >
+        <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder="Looking for an item?"
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 300 }}
+          />
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary"
+          >
+            Search
+          </Button>
+          {searchParams.size > 0 && (
+            <Button 
+              onClick={handleClearFilters} 
+              startIcon={<ClearIcon />}
+              color="secondary"
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Box>
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div>
-                        <p>{user?.fullName || user?.username || 'Staff'}</p>
-                        <p>{user?.role || 'Staff'}</p>
-                    </div>
-                </div>
-            </div>
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant="subtitle1" fontWeight={500}>
+            {user?.fullName || user?.username || 'Staff'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.role || 'Staff'}
+          </Typography>
+        </Box>
+      </Box>
 
-            {/* Inventory heading and controls */}
-            <div>
-                <h1>Inventory</h1> 
+      {/* Inventory content */}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" fontWeight={600}>
+            Inventory
+          </Typography>
+          
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button 
+              onClick={handleExportList} 
+              startIcon={<FileDownloadIcon />}
+              variant="outlined"
+            >
+              Export List
+            </Button>
+            <Button 
+              component={Link} 
+              to={`/${user.role}/add-new-listing`}
+              startIcon={<AddIcon />}
+              variant="contained"
+              color="primary"
+            >
+              Add New Listing
+            </Button>
+          </Box>
+        </Box>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <div>
-                        {/* Dynamic category dropdown */}
-                        <select 
-                            value={selectedCategory || 'Category'} 
-                            onChange={handleCategoryChange}
-                        >
-                            {categories.map((category, index) => (
-                                <option key={index} value={category === 'Category' ? '' : category}>
-                                    {category}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Category</InputLabel>
+            <Select
+              value={selectedCategory || 'All Categories'}
+              onChange={handleCategoryChange}
+              label="Category"
+            >
+              {categories.map((category, index) => (
+                <MenuItem key={index} value={category === 'All Categories' ? '' : category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
-                    <div>
-                        <button onClick={handleExportList}>Export List</button>
-                        <Link to={`/${user.role}/add-new-listing`}>
-                            <button>Add New Listing</button>
-                        </Link>
-                    </div>
-                </div>
+        <Divider sx={{ my: 2 }} />
 
-                {/* Inventory Table */}
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr>
-                            <th>ITEM CODE</th>
-                            <th>ITEM NAME</th>
-                            <th>CATEGORY</th>
-                            <th>TYPE</th>
-                            <th>PRICE</th>
-                            <th>OWNER</th>
-                            <th>ACTION</th> {/* New header for actions */}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredItems.length > 0 ? (
-                            filteredItems.map(item => (
-                                <tr key={item.id}>
-                                    <td>{item.itemCode}</td>
-                                    <td>{item.name}</td>
-                                    <td>{item.category}</td>
-                                    <td>{item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</td>
-                                    <td>${item.price.toFixed(2)}</td>
-                                    <td>{item.owner}</td>
-                                    <td>
-                                        <button 
-                                            onClick={() => handleDeleteItem(item.id, item.name)} 
-                                            disabled={isDeleting}
-                                            style={{
-                                                backgroundColor: '#ff4d4f',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '5px 10px',
-                                                borderRadius: '4px',
-                                                cursor: isDeleting ? 'not-allowed' : 'pointer'
-                                            }}
-                                        >
-                                            {isDeleting ? 'Deleting...' : 'Delete'}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
-                                    No items found matching the selected filters.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
+        {/* Inventory Table */}
+        <TableContainer component={Paper} elevation={0}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ITEM CODE</TableCell>
+                <TableCell>ITEM NAME</TableCell>
+                <TableCell>CATEGORY</TableCell>
+                <TableCell>TYPE</TableCell>
+                <TableCell>PRICE</TableCell>
+                <TableCell>OWNER</TableCell>
+                <TableCell>ACTION</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredItems.length > 0 ? (
+                filteredItems.map(item => (
+                  <TableRow key={item.id} hover>
+                    <TableCell>{item.itemCode}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</TableCell>
+                    <TableCell>${item.price.toFixed(2)}</TableCell>
+                    <TableCell>{item.owner}</TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => handleDeleteClick(item)}
+                        disabled={isDeleting}
+                        startIcon={<DeleteIcon />}
+                        color="error"
+                        size="small"
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No items found matching the selected filters.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCancelDelete}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete "{itemToDelete?.name}"? 
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete} 
+            color="error"
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
 }
