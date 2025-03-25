@@ -21,6 +21,19 @@ export default function ItemDetail() {
     const item = useLoaderData();
     const [user, setUser] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const handleNextImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            (prevIndex + 1) % item.images.length
+        );
+    };
+
+    const handlePrevImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            (prevIndex - 1 + item.images.length) % item.images.length
+        );
+    };
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -59,18 +72,82 @@ export default function ItemDetail() {
                 <Grid container spacing={4}>
                     {/* Images Section */}
                     <Grid item xs={12} md={6}>
-                        <Card elevation={0} sx={{ borderRadius: 2 }}>
+                        <Card elevation={0} sx={{ borderRadius: 2, position: 'relative' }}>
                             {item.images && item.images.length > 0 ? (
-                                <CardMedia
-                                    component="img"
-                                    image={item.images[0]}
-                                    alt={item.name}
-                                    sx={{
-                                        width: '100%',
-                                        height: 'auto',
-                                        borderRadius: 2
-                                    }}
-                                />
+                                <>
+                                    <CardMedia
+                                        component="img"
+                                        image={item.images[currentImageIndex]}
+                                        alt={item.name}
+                                        sx={{
+                                            width: '100%',
+                                            height: 'auto',
+                                            borderRadius: 2,
+                                            aspectRatio: '1/1',
+                                            objectFit: 'contain'
+                                        }}
+                                    />
+                                    {item.images.length > 1 && (
+                                        <>
+                                            <Button
+                                                onClick={handlePrevImage}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    left: 8,
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    backgroundColor: 'rgba(0,0,0,0.5)',
+                                                    color: 'white',
+                                                    minWidth: 'unset',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(0,0,0,0.7)'
+                                                    }
+                                                }}
+                                            >
+                                                ‹
+                                            </Button>
+                                            <Button
+                                                onClick={handleNextImage}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    right: 8,
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    backgroundColor: 'rgba(0,0,0,0.5)',
+                                                    color: 'white',
+                                                    minWidth: 'unset',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(0,0,0,0.7)'
+                                                    }
+                                                }}
+                                            >
+                                                ›
+                                            </Button>
+                                            <Box sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                mt: 1,
+                                                gap: 1
+                                            }}>
+                                                {item.images.map((_, index) => (
+                                                    <Box
+                                                        key={index}
+                                                        onClick={() => setCurrentImageIndex(index)}
+                                                        sx={{
+                                                            width: 8,
+                                                            height: 8,
+                                                            borderRadius: '50%',
+                                                            backgroundColor: index === currentImageIndex
+                                                                ? 'primary.main'
+                                                                : 'grey.400',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    />
+                                                ))}
+                                            </Box>
+                                        </>
+                                    )}
+                                </>
                             ) : (
                                 <Box
                                     sx={{
