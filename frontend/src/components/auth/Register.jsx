@@ -1,19 +1,16 @@
 import { useActionData, Form } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
+import Header from '../Header'
+import Footer from '../footer'
+
 function Register() {
     const actionData = useActionData();
 
     return (
         <div>
+            <Header />
             <main>
-                <div>
-                    <div>
-                        <img src="/logo.png" alt="MERC-A Logo" />
-                    </div>
-                    <div>MERCADORIA DE ARGILA</div>
-                </div>
-
                 <div>
                     <h2>Create an account</h2>
                     <p>Enter your details below</p>
@@ -62,6 +59,7 @@ function Register() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

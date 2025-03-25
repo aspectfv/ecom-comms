@@ -1,4 +1,6 @@
 import { Form, useActionData, useNavigation, Link } from 'react-router-dom';
+import Header from '../Header'
+import Footer from '../footer'
 
 function Login() {
     const actionData = useActionData();
@@ -7,6 +9,7 @@ function Login() {
 
     return (
         <div className="login-container">
+            <Header />
             <h1>Login</h1>
 
             <Form method="post">
@@ -42,6 +45,8 @@ function Login() {
             <div className="register-link">
                 <p>Don't have an account? <Link to="/register">Register</Link></p>
             </div>
+
+            <Footer />
         </div>
     );
 }
