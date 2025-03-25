@@ -14,7 +14,9 @@ import {
     IconButton,
     Container
 } from '@mui/material';
-import { ShoppingCart, AccountCircle, ExitToApp } from '@mui/icons-material';
+import { ShoppingCart, AccountCircle, ExitToApp, ListAlt } from '@mui/icons-material';
+
+// Import your logo image (make sure to have the file in your project)
 
 export default function Header() {
     const navigate = useNavigate();
@@ -22,7 +24,6 @@ export default function Header() {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
-    // Check localStorage for user data on component mount
     useEffect(() => {
         const userData = localStorage.getItem('user');
         if (userData) {
@@ -30,7 +31,6 @@ export default function Header() {
         }
     }, []);
 
-    // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('user');
         setUser(null);
@@ -46,17 +46,42 @@ export default function Header() {
         setAnchorEl(null);
     };
 
+    const handleNavigate = (path) => {
+        handleClose();
+        navigate(path);
+    };
+
     return (
-        <AppBar position="static" elevation={0} sx={{ mb: 4 }}>
+        <AppBar
+            position="static"
+            elevation={0}
+            sx={{
+                mb: 2, // Reduced margin bottom
+                py: 0.5, // Reduced vertical padding
+            }}
+        >
             <Container maxWidth="xl">
-                <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-                    <Link href="/" underline="none" color="inherit">
-                        <Typography variant="h4" component="h1" fontWeight={600}>
-                            Merca Finds
-                        </Typography>
+                <Toolbar
+                    disableGutters
+                    sx={{
+                        justifyContent: 'space-between',
+                        minHeight: '48px', // Reduced toolbar height
+                    }}
+                >
+                    <Link href="/" underline="none">
+                        {/* Replace text with logo image */}
+                        <Box
+                            component="img"
+                            src={'http://localhost:3000/images/merca-white.jpeg'}
+                            alt="Merca Finds Logo"
+                            sx={{
+                                height: 80, // Adjust height as needed
+                                width: 'auto',
+                            }}
+                        />
                     </Link>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}> {/* Reduced gap */}
                         <Link href="/" underline="hover" color="text.primary">
                             <Typography variant="body1">Home</Typography>
                         </Link>
@@ -67,6 +92,7 @@ export default function Header() {
                                 color="primary"
                                 onClick={() => navigate('/login')}
                                 startIcon={<AccountCircle />}
+                                size="small" // Smaller button
                             >
                                 Login
                             </Button>
@@ -75,13 +101,13 @@ export default function Header() {
                                 <IconButton
                                     onClick={handleMenu}
                                     size="small"
-                                    sx={{ ml: 2 }}
+                                    sx={{ ml: 1 }} // Reduced margin
                                     aria-controls={open ? 'account-menu' : undefined}
                                     aria-haspopup="true"
                                     aria-expanded={open ? 'true' : undefined}
                                 >
-                                    <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
-                                        {user.fullName.charAt(0).toUpperCase()}
+                                    <Avatar sx={{ width: 28, height: 28, bgcolor: 'secondary.main' }}> {/* Smaller avatar */}
+                                        {user.fullName ? user.fullName.charAt(0).toUpperCase() : ""}
                                     </Avatar>
                                 </IconButton>
 
@@ -90,16 +116,15 @@ export default function Header() {
                                     id="account-menu"
                                     open={open}
                                     onClose={handleClose}
-                                    onClick={handleClose}
                                     PaperProps={{
                                         elevation: 0,
                                         sx: {
                                             overflow: 'visible',
                                             filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
-                                            mt: 1.5,
+                                            mt: 1,
                                             '& .MuiAvatar-root': {
-                                                width: 32,
-                                                height: 32,
+                                                width: 28,
+                                                height: 28,
                                                 ml: -0.5,
                                                 mr: 1,
                                             },
@@ -114,15 +139,15 @@ export default function Header() {
                                     <Divider />
 
                                     {user.role === 'customer' && (
-                                        <>
-                                            <MenuItem onClick={() => navigate('/cart')}>
+                                        <div>
+                                            <MenuItem onClick={() => handleNavigate('/cart')}>
                                                 <ShoppingCart sx={{ mr: 1 }} /> Shopping Cart
                                             </MenuItem>
-                                            <MenuItem onClick={() => navigate('/orders')}>
-                                                <ShoppingCart sx={{ mr: 1 }} /> Orders
+                                            <MenuItem onClick={() => handleNavigate('/orders')}>
+                                                <ListAlt sx={{ mr: 1 }} /> Orders
                                             </MenuItem>
                                             <Divider />
-                                        </>
+                                        </div>
                                     )}
 
                                     <MenuItem onClick={handleLogout}>

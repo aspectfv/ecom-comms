@@ -33,7 +33,7 @@ export default function Footer() {
                         </Typography>
                         <Box
                             component="img"
-                            src="https://placehold.co/100x50?text=Logo"
+                            src="http://localhost:3000/images/merca-black.jpeg"
                             alt="Merca Finds Logo"
                             width={100}
                             sx={{ mt: 2 }}
