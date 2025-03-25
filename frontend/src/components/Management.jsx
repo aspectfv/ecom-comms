@@ -7,7 +7,7 @@ export default function Management() {
     // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('user');
-        navigate('/home');
+        navigate('/login');
     };
 
     return (
