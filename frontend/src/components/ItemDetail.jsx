@@ -24,12 +24,17 @@ export default function ItemDetail() {
             <Header />
             <div>
                 {item.images && item.images.length > 0 ? (
-                    <img src={item.images[0]} alt={item.name} />
+                    item.images.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image}
+                            alt={`${item.name} - Image ${index + 1}`}
+                        />
+                    ))
                 ) : (
-                    <div>No image available</div>
+                    <div>No images available</div>
                 )}
-            </div>
-            <h1>{item.name}</h1>
+            </div>            <h1>{item.name}</h1>
             <p>Category: {item.category || 'Uncategorized'}</p>
             <p>Type: {item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</p>
             <p>Price: ${item.price.toFixed(2)}</p>

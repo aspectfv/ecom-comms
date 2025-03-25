@@ -1,3 +1,4 @@
 node_modules/
 backend/.env
-backend/public/images
+backend/public/images/*
+!backend/public/images/.gitkeep
