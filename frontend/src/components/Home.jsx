@@ -4,23 +4,12 @@ import Header from './Header'
 import Footer from './Footer'
 
 function ItemCard({ item }) {
-    // Function to properly format image URLs
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return 'https://placehold.co/300x200?text=No+Image';
-        
-        // If it's already a complete URL, return it as is
-        if (imagePath.startsWith('http')) return imagePath;
-        
-        // Otherwise, prepend the backend URL
-        return `http://localhost:3000${imagePath}`;
-    };
-
     return (
         <Link to={`/item/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="card">
                 <div className="card-image">
                     <img
-                        src={item.images?.length ? getImageUrl(item.images[0]) : 'https://placehold.co/300x200?text=No+Image'}
+                        src={item.images[0] || 'https://placehold.co/300x200?text=No+Image'}
                         height={200}
                         alt={item.name}
                     />

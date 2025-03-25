@@ -15,11 +15,28 @@ const ItemSchema = new mongoose.Schema({
 }, {
     toJSON: {
         transform: function(doc, ret) {
-            ret.id = ret._id
-            delete ret._id
-            delete ret.__v
-            return ret
+            // Transform ID field
+            ret.id = ret._id;
+            delete ret._id;
+            delete ret.__v;
+            
+            // Transform image URLs to include host
+            if (ret.images && ret.images.length > 0) {
+                const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+                ret.images = ret.images.map(img => {
+                    // Only prepend baseUrl if the image path doesn't already include http:// or https://
+                    if (img && !img.startsWith('http://') && !img.startsWith('https://')) {
+                        // Make sure we don't duplicate slashes
+                        const imgPath = img.startsWith('/') ? img : `/${img}`;
+                        return `${baseUrl}${imgPath}`;
+                    }
+                    return img;
+                });
+            }
+            
+            return ret;
         },
     },
-})
+});
+
 module.exports = mongoose.model('Item', ItemSchema);
