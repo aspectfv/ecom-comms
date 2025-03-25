@@ -63,7 +63,7 @@ export const registerAction = async ({ request }) => {
         }));
 
         // Redirect to customer page (new users are always customers)
-        return redirect('/customer');
+        return redirect('/home');
     } catch (error) {
         return { error: error.response?.data?.message || 'Registration failed' };
     }
