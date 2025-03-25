@@ -249,7 +249,7 @@ export default function Inventory() {
           <FormControl size="small" sx={{ minWidth: 200 }}>
             <InputLabel>Category</InputLabel>
             <Select
-              value={selectedCategory || 'All Categories'}
+              value={selectedCategory || ''}
               onChange={handleCategoryChange}
               label="Category"
             >

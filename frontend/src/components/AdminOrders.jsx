@@ -1,237 +1,318 @@
-import { useLoaderData, Link, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
+import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  Box, 
+  Button, 
+  Card, 
+  Container, 
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider, 
+  FormControl, 
+  InputAdornment, 
+  InputLabel, 
+  MenuItem, 
+  Paper, 
+  Select, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TextField, 
+  Typography 
+} from '@mui/material';
+import { 
+  Search as SearchIcon, 
+  Clear as ClearIcon, 
+  Visibility, 
+  FileDownload as FileDownloadIcon
+} from '@mui/icons-material';
 
 export default function AdminOrders() {
-    const orders = useLoaderData(); // Load orders data from the loader
-    const user = JSON.parse(localStorage.getItem('user')); // Get user data for role-based routing
+  const orders = useLoaderData();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
+  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+  const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
+  const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
+
+  const filteredOrders = orders.filter(order => {
+    const searchQuery = searchParams.get('q') || '';
+    const matchesSearch = !searchQuery || 
+      order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.deliveryDetails.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.paymentMethod && order.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    // Use search params for state persistence in URL
-    const [searchParams, setSearchParams] = useSearchParams();
+    const statusParam = searchParams.get('status') || '';
+    const matchesStatus = !statusParam || order.status === statusParam.toLowerCase();
     
-    // Initialize states from URL params
-    const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
-    const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
-    const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
-
-    // Apply filters based on URL search params
-    const filteredOrders = orders.filter(order => {
-        // Search query filter - case insensitive search across multiple fields
-        const searchQuery = searchParams.get('q') || '';
-        const matchesSearch = !searchQuery || 
-            order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.deliveryDetails.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (order.paymentMethod && order.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        // Status filter
-        const statusParam = searchParams.get('status') || '';
-        const matchesStatus = !statusParam || order.status === statusParam.toLowerCase();
-        
-        // Period filter
-        const periodParam = searchParams.get('period') || '';
-        const orderDate = new Date(order.createdAt);
-        const now = new Date();
-        let matchesPeriod = true;
-        
-        if (periodParam === 'Last 24 Hours') {
-            const yesterday = new Date(now.setHours(now.getHours() - 24));
-            matchesPeriod = orderDate >= yesterday;
-        } else if (periodParam === 'Last 7 Days') {
-            const lastWeek = new Date(now.setDate(now.getDate() - 7));
-            matchesPeriod = orderDate >= lastWeek;
-        } else if (periodParam === 'This Month') {
-            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            matchesPeriod = orderDate >= firstDayOfMonth;
-        } else if (periodParam === 'This Year') {
-            const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-            matchesPeriod = orderDate >= firstDayOfYear;
-        }
-        // All-Time doesn't need filtering
-        
-        return matchesSearch && matchesStatus && matchesPeriod;
-    });
-
-    // Handle search form submission
-    const handleSearch = (e) => {
-        e.preventDefault(); // Prevent page reload
-        updateSearchParams('q', searchInput);
-    };
-
-    // Update a single search parameter
-    const updateSearchParams = (key, value) => {
-        const newParams = new URLSearchParams(searchParams);
-        
-        if (value && value !== '') {
-            newParams.set(key, value);
-        } else {
-            newParams.delete(key);
-        }
-        
-        setSearchParams(newParams);
-    };
-
-    // Handle input changes
-    const handleSearchInputChange = (e) => {
-        setSearchInput(e.target.value);
-    };
-
-    // Handle status selection change
-    const handleStatusChange = (e) => {
-        const value = e.target.value === 'Status' ? '' : e.target.value;
-        setSelectedStatus(value);
-        updateSearchParams('status', value);
-    };
+    const periodParam = searchParams.get('period') || '';
+    const orderDate = new Date(order.createdAt);
+    const now = new Date();
+    let matchesPeriod = true;
     
-    // Handle period selection change
-    const handlePeriodChange = (e) => {
-        const value = e.target.value === 'Period' ? '' : e.target.value;
-        setSelectedPeriod(value);
-        updateSearchParams('period', value);
-    };
+    if (periodParam === 'Last 24 Hours') {
+      const yesterday = new Date(now.setHours(now.getHours() - 24));
+      matchesPeriod = orderDate >= yesterday;
+    } else if (periodParam === 'Last 7 Days') {
+      const lastWeek = new Date(now.setDate(now.getDate() - 7));
+      matchesPeriod = orderDate >= lastWeek;
+    } else if (periodParam === 'This Month') {
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      matchesPeriod = orderDate >= firstDayOfMonth;
+    } else if (periodParam === 'This Year') {
+      const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+      matchesPeriod = orderDate >= firstDayOfYear;
+    }
     
-    // Clear all filters
-    const handleClearFilters = () => {
-        setSearchInput('');
-        setSelectedStatus('');
-        setSelectedPeriod('');
-        setSearchParams({});
-    };
+    return matchesSearch && matchesStatus && matchesPeriod;
+  });
 
-    // Export orders data as CSV
-    const handleExportList = () => {
-        if (!filteredOrders || filteredOrders.length === 0) {
-            alert('No orders data to export.');
-            return;
-        }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    updateSearchParams('q', searchInput);
+  };
 
-        // Generate CSV content
-        const headers = ['ORDER NUMBER', 'CUSTOMER', 'DATE', 'TOTAL', 'STATUS'];
-        const rows = filteredOrders.map(order => [
-            order.orderNumber,
-            order.deliveryDetails.fullName,
-            new Date(order.createdAt).toLocaleDateString(),
-            `$${order.total.toFixed(2)}`,
-            order.status.toUpperCase()
-        ]);
+  const updateSearchParams = (key, value) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (value && value !== '') {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    
+    setSearchParams(newParams);
+  };
 
-        const csvContent = [
-            headers.join(','), // Add headers
-            ...rows.map(row => row.join(',')) // Add rows
-        ].join('\n');
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
 
-        // Create a Blob and download the file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'orders_data.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+  const handleStatusChange = (e) => {
+    const value = e.target.value === 'All Statuses' ? '' : e.target.value;
+    setSelectedStatus(value);
+    updateSearchParams('status', value.toLowerCase());
+  };
+  
+  const handlePeriodChange = (e) => {
+    const value = e.target.value === 'All Time' ? '' : e.target.value;
+    setSelectedPeriod(value);
+    updateSearchParams('period', value);
+  };
+  
+  const handleClearFilters = () => {
+    setSearchInput('');
+    setSelectedStatus('');
+    setSelectedPeriod('');
+    setSearchParams({});
+  };
 
-    return (
-        <div>
-            {/* Header with search and user info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <form onSubmit={handleSearch}>
-                        <input 
-                            type="text" 
-                            placeholder="Search orders..." 
-                            value={searchInput}
-                            onChange={handleSearchInputChange}
-                        />
-                        <button type="submit">SEARCH</button>
-                    </form>
-                    {(searchParams.size > 0) && (
-                        <button onClick={handleClearFilters} style={{ marginLeft: '10px' }}>
-                            Clear Filters
-                        </button>
-                    )}
-                </div>
+  const handleExportList = () => {
+    if (!filteredOrders || filteredOrders.length === 0) {
+      alert('No orders data to export.');
+      return;
+    }
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div>
-                        <p>{user?.fullName || user?.username || 'Admin'}</p>
-                        <p>{user?.role || 'Admin'}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <h1>Orders</h1> 
+    const headers = ['ORDER NUMBER', 'CUSTOMER', 'DATE', 'TOTAL', 'STATUS'];
+    const rows = filteredOrders.map(order => [
+      order.orderNumber,
+      order.deliveryDetails.fullName,
+      new Date(order.createdAt).toLocaleDateString(),
+      `$${order.total.toFixed(2)}`,
+      order.status.toUpperCase()
+    ]);
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <div>
-                    {/* Status dropdown */}
-                    <select 
-                        value={selectedStatus || 'Status'} 
-                        onChange={handleStatusChange}
-                    >
-                        <option>Status</option>
-                        <option>Pending</option>
-                        <option>Completed</option>
-                    </select>
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
 
-                    {/* Period dropdown */}
-                    <select 
-                        value={selectedPeriod || 'Period'} 
-                        onChange={handlePeriodChange}
-                    >
-                        <option>Period</option>
-                        <option>Last 24 Hours</option>
-                        <option>Last 7 Days</option>
-                        <option>This Month</option>
-                        <option>This Year</option>
-                        <option>All-Time</option>
-                    </select>
-                </div>
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'orders_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-                <div>
-                    <button onClick={handleExportList}>Export List</button>
-                </div>
-            </div>
+  return (
+    <Container maxWidth={false} sx={{ p: 3 }}>
+      {/* Header with search and user info */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4
+        }}
+      >
+        <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder="Search orders..."
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 300 }}
+          />
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary"
+          >
+            Search
+          </Button>
+          {searchParams.size > 0 && (
+            <Button 
+              onClick={handleClearFilters} 
+              startIcon={<ClearIcon />}
+              color="secondary"
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Box>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr>
-                        <th>ORDER NUMBER</th>
-                        <th>CUSTOMER</th>
-                        <th>DATE</th>
-                        <th>TOTAL</th>
-                        <th>STATUS</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order) => (
-                            <tr key={order.id}>
-                                <td>{order.orderNumber}</td>
-                                <td>{order.deliveryDetails.fullName}</td>
-                                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                <td>${order.total.toFixed(2)}</td>
-                                <td style={{ 
-                                    color: order.status === 'completed' ? 'green' : 'orange',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {order.status.toUpperCase()}
-                                </td>
-                                <td>
-                                    <Link to={`/${user.role}/order/${order.id}`}>
-                                        <button>👁️ View</button>
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
-                                No orders found matching the selected filters.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant="subtitle1" fontWeight={500}>
+            {user?.fullName || user?.username || 'Admin'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.role || 'Admin'}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Orders content */}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" fontWeight={600}>
+            Orders
+          </Typography>
+          
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button 
+              onClick={handleExportList} 
+              startIcon={<FileDownloadIcon />}
+              variant="outlined"
+            >
+              Export List
+            </Button>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={selectedStatus || ''}
+                onChange={handleStatusChange}
+                label="Status"
+              >
+                <MenuItem value="All Statuses">All Statuses</MenuItem>
+                <MenuItem value="Pending">Pending</MenuItem>
+                <MenuItem value="Completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>Period</InputLabel>
+              <Select
+                value={selectedPeriod || 'All Time'}
+                onChange={handlePeriodChange}
+                label="Period"
+              >
+                <MenuItem value="All Time">All Time</MenuItem>
+                <MenuItem value="Last 24 Hours">Last 24 Hours</MenuItem>
+                <MenuItem value="Last 7 Days">Last 7 Days</MenuItem>
+                <MenuItem value="This Month">This Month</MenuItem>
+                <MenuItem value="This Year">This Year</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Orders Table */}
+        <TableContainer component={Paper} elevation={0}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ORDER NUMBER</TableCell>
+                <TableCell>CUSTOMER</TableCell>
+                <TableCell>DATE</TableCell>
+                <TableCell>TOTAL</TableCell>
+                <TableCell>STATUS</TableCell>
+                <TableCell>ACTION</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map(order => (
+                  <TableRow key={order.id} hover>
+                    <TableCell>{order.orderNumber}</TableCell>
+                    <TableCell>{order.deliveryDetails.fullName}</TableCell>
+                    <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>${order.total.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight={500}
+                        color={order.status === 'completed' ? 'success.main' : 'warning.main'}
+                        sx={{
+                          padding: '4px 8px',
+                          display: 'inline-block'
+                        }}
+                      >
+                        {order.status.toUpperCase()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        component={Link}
+                        to={`/${user.role}/order/${order.id}`}
+                        startIcon={<Visibility />}
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      No orders found matching the selected filters.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
+    </Container>
+  );
 }
