@@ -1,8 +1,30 @@
 import { useLoaderData, Link, Form } from 'react-router-dom';
+import { 
+  Box, 
+  Button, 
+  Card, 
+  Container, 
+  Chip,
+  Divider, 
+  Grid, 
+  Paper, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TableFooter,
+  Typography 
+} from '@mui/material';
+import { 
+  ArrowBack as ArrowBackIcon,
+  CheckCircle as CheckCircleIcon
+} from '@mui/icons-material';
 
 export default function ViewDetails() {
-    const order = useLoaderData(); // Load order details from the loader
-    const user = JSON.parse(localStorage.getItem('user')); // Get user data
+    const order = useLoaderData();
+    const user = JSON.parse(localStorage.getItem('user'));
 
     // Format date to be more readable
     const formatDate = (dateString) => {
@@ -16,105 +38,145 @@ export default function ViewDetails() {
     };
 
     return (
-        <div>
-            <h1>Order Details</h1>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Typography variant="h3" component="h1" fontWeight={600} mb={4}>
+                Order Details
+            </Typography>
             
-            <div style={{ marginBottom: '20px' }}>
-                <Link to={`/${user.role}/orders`}>
-                    <button>&larr; Back to Orders</button>
-                </Link>
-            </div>
+            <Box mb={4}>
+                <Button 
+                    component={Link} 
+                    to={`/${user.role}/orders`}
+                    startIcon={<ArrowBackIcon />}
+                    variant="outlined"
+                >
+                    Back to Orders
+                </Button>
+            </Box>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <div>
-                    <h2>Order #{order.orderNumber}</h2>
-                    <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
-                </div>
-                
-                <div>
-                    <div style={{ 
-                        padding: '8px 16px',
-                        borderRadius: '4px',
-                        backgroundColor: order.status === 'completed' ? '#e6f7e9' : '#fff4e5',
-                        color: order.status === 'completed' ? '#2e7d32' : '#ed6c02',
-                        display: 'inline-block',
-                        fontWeight: 'bold'
-                    }}>
-                        {order.status.toUpperCase()}
-                    </div>
+            <Card sx={{ mb: 4, p: 3 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3}>
+                    <Box>
+                        <Typography variant="h4" component="h2" fontWeight={500}>
+                            Order #{order.orderNumber}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" mt={1}>
+                            <strong>Date:</strong> {formatDate(order.createdAt)}
+                        </Typography>
+                    </Box>
                     
-                    {/* Only show Mark as Completed button if order is pending and user is admin */}
-                    {order.status === 'pending' && user.role === 'admin' && (
-                        <Form method="post">
-                            <input type="hidden" name="action" value="markAsCompleted" />
-                            <button 
-                                type="submit"
-                                style={{ 
-                                    marginTop: '10px',
-                                    backgroundColor: '#4caf50',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '8px 16px',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Mark as Completed
-                            </button>
-                        </Form>
-                    )}
-                </div>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div>
-                    <h3>Customer Information</h3>
-                    <p><strong>Name:</strong> {order.deliveryDetails.fullName}</p>
-                    <p><strong>Contact:</strong> {order.deliveryDetails.contactNumber}</p>
-                    <p><strong>Address:</strong> {order.deliveryDetails.street}, {order.deliveryDetails.city}</p>
-                </div>
+                    <Box textAlign="right">
+                        <Chip 
+                            label={order.status.toUpperCase()}
+                            color={order.status === 'completed' ? 'success' : 'warning'}
+                            sx={{ 
+                                fontWeight: 500,
+                                fontSize: '0.875rem',
+                                px: 2,
+                                py: 0.5
+                            }}
+                        />
+                        
+                        {order.status === 'pending' && user.role === 'admin' && (
+                            <Box mt={2}>
+                                {/* Using React Router's Form component instead of HTML form */}
+                                <Form method="post">
+                                    <input type="hidden" name="action" value="markAsCompleted" />
+                                    <Button 
+                                        type="submit"
+                                        variant="contained"
+                                        color="success"
+                                        startIcon={<CheckCircleIcon />}
+                                    >
+                                        Mark as Completed
+                                    </Button>
+                                </Form>
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
                 
-                <div>
-                    <h3>Order Information</h3>
-                    <p><strong>Delivery Method:</strong> {order.deliveryDetails.mode}</p>
-                    <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
-                    {order.completedAt && (
-                        <p><strong>Completed Date:</strong> {formatDate(order.completedAt)}</p>
-                    )}
-                </div>
-            </div>
+                <Divider sx={{ my: 3 }} />
+                
+                <Grid container spacing={4}>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h5" component="h3" fontWeight={500} mb={2}>
+                            Customer Information
+                        </Typography>
+                        <Box sx={{ '& > p': { mb: 1 } }}>
+                            <Typography variant="body1">
+                                <strong>Name:</strong> {order.deliveryDetails.fullName}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Contact:</strong> {order.deliveryDetails.contactNumber}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Address:</strong> {order.deliveryDetails.street}, {order.deliveryDetails.city}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h5" component="h3" fontWeight={500} mb={2}>
+                            Order Information
+                        </Typography>
+                        <Box sx={{ '& > p': { mb: 1 } }}>
+                            <Typography variant="body1">
+                                <strong>Delivery Method:</strong> {order.deliveryDetails.mode}
+                            </Typography>
+                            <Typography variant="body1">
+                                <strong>Payment Method:</strong> {order.paymentMethod}
+                            </Typography>
+                            {order.completedAt && (
+                                <Typography variant="body1">
+                                    <strong>Completed Date:</strong> {formatDate(order.completedAt)}
+                                </Typography>
+                            )}
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Card>
             
-            <h3>Order Items</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-                <thead>
-                    <tr style={{ backgroundColor: '#f5f5f5', textAlign: 'left' }}>
-                        <th style={{ padding: '10px' }}>Item</th>
-                        <th style={{ padding: '10px' }}>Price</th>
-                        <th style={{ padding: '10px' }}>Quantity</th>
-                        <th style={{ padding: '10px' }}>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {order.items.map((item, index) => (
-                        <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '10px' }}>{item.itemId.name}</td>
-                            <td style={{ padding: '10px' }}>${item.price.toFixed(2)}</td>
-                            <td style={{ padding: '10px' }}>{item.quantity}</td>
-                            <td style={{ padding: '10px' }}>${(item.price * item.quantity).toFixed(2)}</td>
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colSpan="3" style={{ textAlign: 'right', padding: '10px', fontWeight: 'bold' }}>Subtotal:</td>
-                        <td style={{ padding: '10px' }}>${order.subtotal.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                        <td colSpan="3" style={{ textAlign: 'right', padding: '10px', fontWeight: 'bold' }}>Total:</td>
-                        <td style={{ padding: '10px', fontWeight: 'bold' }}>${order.total.toFixed(2)}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+            <Card sx={{ p: 3 }}>
+                <Typography variant="h5" component="h3" fontWeight={500} mb={3}>
+                    Order Items
+                </Typography>
+                
+                <TableContainer component={Paper} elevation={0}>
+                    <Table>
+                        <TableHead>
+                            <TableRow sx={{ bgcolor: 'background.paper' }}>
+                                <TableCell>Item</TableCell>
+                                <TableCell>Price</TableCell>
+                                <TableCell>Quantity</TableCell>
+                                <TableCell align="right">Total</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {order.items.map((item, index) => (
+                                <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                    <TableCell component="th" scope="row">{item.itemId.name}</TableCell>
+                                    <TableCell>${item.price.toFixed(2)}</TableCell>
+                                    <TableCell>{item.quantity}</TableCell>
+                                    <TableCell align="right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={3} align="right" sx={{ fontWeight: 500 }}>Subtotal:</TableCell>
+                                <TableCell align="right">${order.subtotal.toFixed(2)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell colSpan={3} align="right" sx={{ fontWeight: 600 }}>Total:</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                                    ${order.total.toFixed(2)}
+                                </TableCell>
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                </TableContainer>
+            </Card>
+        </Container>
     );
 }
