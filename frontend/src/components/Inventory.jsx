@@ -1,5 +1,6 @@
 import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { deleteItem } from '../services/api';
 
 export default function Inventory() {
     const inventoryItems = useLoaderData(); // Load inventory items from the loader
@@ -12,7 +13,7 @@ export default function Inventory() {
     // Initialize states from URL params
     const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
     const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-    const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
+    const [isDeleting, setIsDeleting] = useState(false); // Track delete operation state
 
     // Extract unique categories from inventory items
     const categories = ['Category', ...new Set(inventoryItems.map(item => item.category))].filter(Boolean);
@@ -31,13 +32,7 @@ export default function Inventory() {
         const categoryParam = searchParams.get('category') || '';
         const matchesCategory = !categoryParam || item.category === categoryParam;
         
-        // Status filter
-        const statusParam = searchParams.get('status') || '';
-        const matchesStatus = !statusParam || 
-            (statusParam === 'Active' && !item.completedAt) ||
-            (statusParam === 'Sold' && item.completedAt);
-        
-        return matchesSearch && matchesCategory && matchesStatus;
+        return matchesSearch && matchesCategory;
     });
 
     // Handle search form submission
@@ -69,13 +64,6 @@ export default function Inventory() {
         const value = e.target.value === 'Category' ? '' : e.target.value;
         setSelectedCategory(value);
         updateSearchParams('category', value);
-    };
-    
-    // Handle status selection change
-    const handleStatusChange = (e) => {
-        const value = e.target.value === 'Status' ? '' : e.target.value;
-        setSelectedStatus(value);
-        updateSearchParams('status', value);
     };
 
     // Export inventory items as CSV
@@ -116,13 +104,27 @@ export default function Inventory() {
     const handleClearFilters = () => {
         setSearchInput('');
         setSelectedCategory('');
-        setSelectedStatus('');
         setSearchParams({}); // Clear all search params
     };
 
-    // Handle row click to navigate to item details
-    const handleRowClick = (itemId) => {
-        navigate(`/${user.role}/item/${itemId}`);
+    // Handle item deletion
+    const handleDeleteItem = async (itemId, itemName) => {
+        // Confirm deletion
+        if (!window.confirm(`Are you sure you want to delete "${itemName}"?`)) {
+            return;
+        }
+        
+        try {
+            setIsDeleting(true);
+            await deleteItem(itemId);
+            // Refresh the page to update the list
+            navigate(0);
+        } catch (error) {
+            console.error('Error deleting item:', error);
+            alert('Failed to delete item. Please try again.');
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -171,18 +173,6 @@ export default function Inventory() {
                                 </option>
                             ))}
                         </select>
-
-                        {/* Only show Status dropdown for admin users */}
-                        {user && user.role === 'admin' && (
-                            <select 
-                                value={selectedStatus || 'Status'} 
-                                onChange={handleStatusChange}
-                            >
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Sold</option>
-                            </select>
-                        )}
                     </div>
 
                     <div>
@@ -203,27 +193,40 @@ export default function Inventory() {
                             <th>TYPE</th>
                             <th>PRICE</th>
                             <th>OWNER</th>
+                            <th>ACTION</th> {/* New header for actions */}
                         </tr>
                     </thead>
                     <tbody>
                         {filteredItems.length > 0 ? (
                             filteredItems.map(item => (
-                                <tr 
-                                    key={item.id} 
-                                    onClick={() => handleRowClick(item.id)} 
-                                    style={{ cursor: 'pointer' }}
-                                >
+                                <tr key={item.id}>
                                     <td>{item.itemCode}</td>
                                     <td>{item.name}</td>
                                     <td>{item.category}</td>
                                     <td>{item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</td>
                                     <td>${item.price.toFixed(2)}</td>
                                     <td>{item.owner}</td>
+                                    <td>
+                                        <button 
+                                            onClick={() => handleDeleteItem(item.id, item.name)} 
+                                            disabled={isDeleting}
+                                            style={{
+                                                backgroundColor: '#ff4d4f',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '5px 10px',
+                                                borderRadius: '4px',
+                                                cursor: isDeleting ? 'not-allowed' : 'pointer'
+                                            }}
+                                        >
+                                            {isDeleting ? 'Deleting...' : 'Delete'}
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
                                     No items found matching the selected filters.
                                 </td>
                             </tr>
