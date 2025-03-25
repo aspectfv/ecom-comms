@@ -2,3 +2,5 @@ node_modules/
 backend/.env
 backend/public/images/*
 !backend/public/images/.gitkeep
+!backend/public/images/merca-black.jpeg
+!backend/public/images/merca-white.jpeg

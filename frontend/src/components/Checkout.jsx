@@ -1,4 +1,4 @@
-import { useLoaderData, Form } from 'react-router-dom';
+import { useLoaderData, Form, useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -21,17 +21,36 @@ import {
     Avatar,
     Paper,
     Stack,
-    Chip
+    Chip,
+    Dialog, // Import Dialog
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
 } from '@mui/material';
 import { LocalShipping, Payment, ShoppingCart, Help, Email, Phone, Home } from '@mui/icons-material';
 import Header from './Header';
 import Footer from './Footer';
+import { useState } from 'react'; // Import useState
 
 function Checkout() {
     const { items = [] } = useLoaderData();
     const subtotal = items.reduce((total, item) => total + (item.itemId.price * item.quantity), 0);
     const shippingFee = 5.99;
     const total = subtotal + shippingFee;
+
+    const navigate = useNavigate(); // Hook for navigation
+    const [open, setOpen] = useState(false); // State for dialog visibility
+
+    const handleClose = () => {
+        setOpen(false);
+        navigate('/home'); // Redirect to /home
+    };
+
+    const handleSubmit = (event) => {
+        //event.preventDefault(); //Removed prevent default
+        setOpen(true);
+    };
 
     return (
         <>
@@ -106,7 +125,7 @@ function Checkout() {
                             </CardContent>
                         </Card>
 
-                        <Form method="post">
+                        <Form method="post" onSubmit={handleSubmit}>
                             <Card sx={{ mb: 4, boxShadow: 3 }}>
                                 <CardContent>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -339,9 +358,28 @@ function Checkout() {
                 </Grid>
             </Box>
             <Footer />
+
+            {/* Success Dialog */}
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Order Successful"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Your order has been successfully placed!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} autoFocus>
+                        Return Home
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
 
 export default Checkout;
-

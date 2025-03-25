@@ -32,7 +32,7 @@ export async function checkoutAction({ request }) {
 
     try {
         await createOrder(orderData);
-        return redirect('/home');
+        return 0;
     } catch (error) {
         console.error('Error creating order:', error);
         return { error: 'Failed to create order' };
