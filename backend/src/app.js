@@ -22,6 +22,9 @@ app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// serve static files
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
+
 // Routes
 app.use('/api', routes);
 

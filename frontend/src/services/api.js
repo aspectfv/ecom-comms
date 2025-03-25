@@ -41,4 +41,8 @@ export const getUserOrders = () => api.get('/orders/user');
 export const getOrderById = (orderId) => api.get(`/orders/${orderId}`);
 export const updateOrder = (orderId, updateData) => api.put(`/orders/${orderId}`, updateData);
 
+// Upload routes
+export const uploadImage = (formData) => api.post('/upload/image', formData);
+export const uploadImages = (formData) => api.post('/upload/images', formData);
+
 export default api;

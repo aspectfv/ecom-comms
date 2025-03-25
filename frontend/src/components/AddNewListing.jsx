@@ -1,18 +1,34 @@
-import { Form, useActionData, Link, redirect } from 'react-router-dom';
+import { Form, useActionData, Link, useNavigation } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function AddNewListing() {
     const actionData = useActionData();
-    const user = JSON.parse(localStorage.getItem('user')); // Get user data for role-based routing
+    const navigation = useNavigation();
+    const isSubmitting = navigation.state === "submitting";
+    const user = JSON.parse(localStorage.getItem('user'));
     
-    // Initialize state for the type field to control conditional rendering
     const [itemType, setItemType] = useState(actionData?.values?.type || 'preloved');
-
+    const [previewImages, setPreviewImages] = useState([]);
+    
     // Handle type selection change
     const handleTypeChange = (e) => {
         setItemType(e.target.value);
     };
-
+    
+    // Handle image selection for preview only
+    const handleImageChange = (e) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files);
+            
+            // Limit to 5 images
+            const limitedFiles = filesArray.slice(0, 5);
+            
+            // Create preview URLs
+            const imagesPreviews = limitedFiles.map(file => URL.createObjectURL(file));
+            setPreviewImages(imagesPreviews);
+        }
+    };
+    
     return (
         <div>
             <h1>Add New Listing</h1>
@@ -25,7 +41,7 @@ export default function AddNewListing() {
                 <div style={{ color: 'green' }}>{actionData.success}</div>
             )}
             
-            <Form method="post">
+            <Form method="post" encType="multipart/form-data">
                 <div>
                     <label htmlFor="itemCode">Item Code:</label>
                     <input 
@@ -129,8 +145,39 @@ export default function AddNewListing() {
                     </div>
                 )}
                 
+                {/* Simplified image upload section - no manual upload handling */}
                 <div>
-                    <button type="submit">Save New Listing</button>
+                    <label htmlFor="images">Product Images:</label>
+                    <input 
+                        type="file" 
+                        id="images" 
+                        name="images"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        multiple
+                        disabled={isSubmitting}
+                    />
+                    <p>You can select up to 5 images</p>
+                    
+                    {/* Preview images */}
+                    {previewImages.length > 0 && (
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            {previewImages.map((url, index) => (
+                                <img 
+                                    key={index} 
+                                    src={url} 
+                                    alt={`Preview ${index + 1}`} 
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover' }} 
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+                
+                <div>
+                    <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Saving...' : 'Save New Listing'}
+                    </button>
                     <Link to={`/${user.role}/inventory`}>
                         <button type="button">Cancel</button>
                     </Link>
