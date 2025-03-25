@@ -13,7 +13,6 @@ import Checkout from './components/Checkout';
 import Orders from './components/Orders';
 import Management from './components/Management';
 import Inventory from './components/Inventory';
-import Sales from './components/Sales';
 import AddNewListing from './components/AddNewListing';
 import ViewDetails from './components/ViewDetails';
 import AdminOrders from './components/AdminOrders';

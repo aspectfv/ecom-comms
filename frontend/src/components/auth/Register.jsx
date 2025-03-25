@@ -1,67 +1,108 @@
 import { useActionData, Form } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-
-import Header from '../Header'
-import Footer from '../footer'
+import { Link as RouterLink } from 'react-router-dom';
+import {
+    Box,
+    Button,
+    Card,
+    Container,
+    Divider,
+    Link,
+    TextField,
+    Typography,
+    Alert
+} from '@mui/material';
+import Header from '../Header';
+import Footer from '../footer';
 
 function Register() {
     const actionData = useActionData();
 
     return (
-        <div>
+        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Header />
-            <main>
-                <div>
-                    <h2>Create an account</h2>
-                    <p>Enter your details below</p>
 
-                    {actionData?.error && (
-                        <div>{actionData.error}</div>
-                    )}
+            <Container maxWidth="sm" sx={{ py: 8, flex: 1 }}>
+                <Card sx={{ p: 4 }}>
+                    <Typography variant="h3" component="h2" gutterBottom>
+                        Create an account
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" gutterBottom>
+                        Enter your details below
+                    </Typography>
+
+                    <Divider sx={{ my: 3 }} />
 
                     <Form method="post">
-                        <div>
-                            <label htmlFor="fullName">Name</label>
-                            <input
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            {actionData?.error && (
+                                <Alert severity="error" sx={{ mb: 2 }}>
+                                    {actionData.error}
+                                </Alert>
+                            )}
+
+                            <TextField
+                                fullWidth
+                                required
                                 id="fullName"
                                 name="fullName"
+                                label="Full Name"
                                 type="text"
-                                required
+                                variant="outlined"
                             />
-                        </div>
 
-                        <div>
-                            <label htmlFor="email">Email or Phone Number</label>
-                            <input
+                            <TextField
+                                fullWidth
+                                required
                                 id="email"
                                 name="email"
+                                label="Email or Phone Number"
                                 type="text"
-                                required
+                                variant="outlined"
                             />
-                        </div>
 
-                        <div>
-                            <label htmlFor="password">Password</label>
-                            <input
+                            <TextField
+                                fullWidth
+                                required
                                 id="password"
                                 name="password"
+                                label="Password"
                                 type="password"
-                                required
+                                variant="outlined"
                             />
-                        </div>
 
-                        <button type="submit">Create Account</button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                                fullWidth
+                                sx={{ mt: 2 }}
+                            >
+                                Create Account
+                            </Button>
+                        </Box>
                     </Form>
 
-                    <div>
-                        <span>Already have account?</span>
-                        <Link to="/login">Log In</Link>
-                    </div>
-                </div>
-            </main>
+                    <Box sx={{ mt: 3, textAlign: 'center' }}>
+                        <Typography variant="body1" component="span" sx={{ mr: 1 }}>
+                            Already have an account?
+                        </Typography>
+                        <Link
+                            component={RouterLink}
+                            to="/login"
+                            color="secondary"
+                            sx={{ fontWeight: 500 }}
+                        >
+                            Log In
+                        </Link>
+                    </Box>
+                </Card>
+            </Container>
+
             <Footer />
-        </div>
+        </Box>
     );
 }
 
 export default Register;
+

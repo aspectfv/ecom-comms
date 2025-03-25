@@ -1,28 +1,52 @@
 import { useState, useEffect } from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
-import Header from './Header'
-import Footer from './Footer'
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardMedia,
+    Container,
+    Grid,
+    Paper,
+    Tab,
+    Tabs,
+    Typography
+} from '@mui/material';
+import Header from './Header';
+import Footer from './Footer';
 
 function ItemCard({ item }) {
     return (
-        <Link to={`/item/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="card">
-                <div className="card-image">
-                    <img
-                        src={item.images[0] || 'https://placehold.co/300x200?text=No+Image'}
-                        height={200}
-                        alt={item.name}
-                    />
-                </div>
-
-                <div className="card-content">
-                    <h3>{item.name}</h3>
-                    <p className="price">${item.price.toFixed(2)}</p>
-                </div>
-            </div>
-        </Link>
+        <Card
+            component={Link}
+            to={`/item/${item.id}`}
+            sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
+            <CardMedia
+                component="img"
+                height="200"
+                image={item.images[0] || 'https://placehold.co/300x200?text=No+Image'}
+                alt={item.name}
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                    {item.name}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                    ${item.price.toFixed(2)}
+                </Typography>
+            </CardContent>
+        </Card>
     );
 }
+
 export default function Home() {
     const items = useLoaderData();
     const prelovedItems = items.filter(item => item.type === 'preloved');
@@ -32,7 +56,6 @@ export default function Home() {
     const [activeTab, setActiveTab] = useState('preloved');
     const [user, setUser] = useState(null);
 
-    // Check localStorage for user data on component mount
     useEffect(() => {
         const userData = localStorage.getItem('user');
         if (userData) {
@@ -40,80 +63,92 @@ export default function Home() {
         }
     }, []);
 
-    // Handle logout
     const handleLogout = () => {
         localStorage.removeItem('user');
         setUser(null);
         navigate('/home');
     };
 
+    const handleTabChange = (event, newValue) => {
+        setActiveTab(newValue);
+    };
+
     return (
-        <div>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
 
-            <main className="container">
-                <h1 className="page-title">Welcome to Merca Finds!</h1>
+            <Container component="main" sx={{ py: 4, flexGrow: 1 }}>
+                <Typography variant="h1" gutterBottom>
+                    Welcome to Merca Finds!
+                </Typography>
 
-                <section>
-                    <h2>Categories</h2>
-                    <div className="tabs">
-                        <div className="tab-list">
-                            <button
-                                className={activeTab === 'preloved' ? 'active' : ''}
-                                onClick={() => setActiveTab('preloved')}
-                            >
-                                Pre-loved Items
-                            </button>
-                            <button
-                                className={activeTab === 'brandnew' ? 'active' : ''}
-                                onClick={() => setActiveTab('brandnew')}
-                            >
-                                Brand New Products
-                            </button>
-                        </div>
+                <Paper sx={{ p: 3, mb: 4 }}>
+                    <Typography variant="h2" gutterBottom>
+                        Categories
+                    </Typography>
 
-                        {activeTab === 'preloved' && (
-                            <div className="tab-panel">
-                                <div className="item-grid">
-                                    {prelovedItems.map(item => (
-                                        <ItemCard key={item.id} item={item} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            textColor="primary"
+                            indicatorColor="primary"
+                        >
+                            <Tab label="Pre-loved Items" value="preloved" />
+                            <Tab label="Brand New Products" value="brandnew" />
+                        </Tabs>
+                    </Box>
 
-                        {activeTab === 'brandnew' && (
-                            <div className="tab-panel">
-                                <div className="item-grid">
-                                    {brandnewItems.map(item => (
-                                        <ItemCard key={item.id} item={item} />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </section>
+                    {activeTab === 'preloved' && (
+                        <Grid container spacing={3}>
+                            {prelovedItems.map(item => (
+                                <Grid item key={item.id} xs={12} sm={6} md={4} lg={3}>
+                                    <ItemCard item={item} />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    )}
 
-                <section>
-                    <h2>Pre-loved Items</h2>
-                    <div className="item-grid">
+                    {activeTab === 'brandnew' && (
+                        <Grid container spacing={3}>
+                            {brandnewItems.map(item => (
+                                <Grid item key={item.id} xs={12} sm={6} md={4} lg={3}>
+                                    <ItemCard item={item} />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    )}
+                </Paper>
+
+                <Paper sx={{ p: 3, mb: 4 }}>
+                    <Typography variant="h2" gutterBottom>
+                        Pre-loved Items
+                    </Typography>
+                    <Grid container spacing={3}>
                         {prelovedItems.slice(0, 4).map(item => (
-                            <ItemCard key={item.id} item={item} />
+                            <Grid item key={item.id} xs={12} sm={6} md={3}>
+                                <ItemCard item={item} />
+                            </Grid>
                         ))}
-                    </div>
-                </section>
+                    </Grid>
+                </Paper>
 
-                <section>
-                    <h2>Brand New Products</h2>
-                    <div className="item-grid">
+                <Paper sx={{ p: 3 }}>
+                    <Typography variant="h2" gutterBottom>
+                        Brand New Products
+                    </Typography>
+                    <Grid container spacing={3}>
                         {brandnewItems.slice(0, 4).map(item => (
-                            <ItemCard key={item.id} item={item} />
+                            <Grid item key={item.id} xs={12} sm={6} md={3}>
+                                <ItemCard item={item} />
+                            </Grid>
                         ))}
-                    </div>
-                </section>
-            </main>
+                    </Grid>
+                </Paper>
+            </Container>
 
             <Footer />
-        </div>
+        </Box>
     );
 }
+
