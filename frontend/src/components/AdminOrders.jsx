@@ -229,6 +229,7 @@ export default function AdminOrders() {
                             >
                                 <MenuItem value="All Statuses">All Statuses</MenuItem>
                                 <MenuItem value="Pending">Pending</MenuItem>
+                                <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
                                 <MenuItem value="Completed">Completed</MenuItem>
                             </Select>
                         </FormControl>
@@ -277,13 +278,17 @@ export default function AdminOrders() {
                                             <Typography
                                                 variant="body2"
                                                 fontWeight={500}
-                                                color={order.status === 'completed' ? 'success.main' : 'warning.main'}
+                                                color={
+                                                    order.status === 'completed' ? 'success.main' : 
+                                                    order.status === 'out_for_delivery' ? 'info.main' : 
+                                                    'warning.main'
+                                                }
                                                 sx={{
                                                     padding: '4px 8px',
                                                     display: 'inline-block'
                                                 }}
                                             >
-                                                {order.status.toUpperCase()}
+                                                {order.status === 'out_for_delivery' ? 'OUT FOR DELIVERY' : order.status.toUpperCase()}
                                             </Typography>
                                         </TableCell>
                                         <TableCell>

@@ -19,7 +19,8 @@ import {
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
-    CheckCircle as CheckCircleIcon
+    CheckCircle as CheckCircleIcon,
+    LocalShipping as LocalShippingIcon
 } from '@mui/icons-material';
 
 export default function ViewOrderDetails() {
@@ -67,8 +68,12 @@ export default function ViewOrderDetails() {
 
                     <Box textAlign="right">
                         <Chip
-                            label={order.status.toUpperCase()}
-                            color={order.status === 'completed' ? 'success' : 'warning'}
+                            label={order.status.replace('_', ' ').toUpperCase()}
+                            color={
+                                order.status === 'completed' ? 'success' : 
+                                order.status === 'out_for_delivery' ? 'info' : 
+                                'warning'
+                            }
                             sx={{
                                 fontWeight: 500,
                                 fontSize: '0.875rem',
@@ -78,8 +83,38 @@ export default function ViewOrderDetails() {
                         />
 
                         {order.status === 'pending' && user.role === 'admin' && (
+                            <Box mt={2} sx={{ display: 'flex', gap: 2 }}>
+                                {/* Out for Delivery button */}
+                                <Form method="post">
+                                    <input type="hidden" name="action" value="markAsOutForDelivery" />
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<LocalShippingIcon />}
+                                    >
+                                        Mark as Out for Delivery
+                                    </Button>
+                                </Form>
+
+                                {/* Existing Mark as Completed button */}
+                                <Form method="post">
+                                    <input type="hidden" name="action" value="markAsCompleted" />
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="success"
+                                        startIcon={<CheckCircleIcon />}
+                                    >
+                                        Mark as Completed
+                                    </Button>
+                                </Form>
+                            </Box>
+                        )}
+
+                        {/* Add this button for out_for_delivery status */}
+                        {order.status === 'out_for_delivery' && user.role === 'admin' && (
                             <Box mt={2}>
-                                {/* Using React Router's Form component instead of HTML form */}
                                 <Form method="post">
                                     <input type="hidden" name="action" value="markAsCompleted" />
                                     <Button
@@ -127,6 +162,11 @@ export default function ViewOrderDetails() {
                             <Typography variant="body1">
                                 <strong>Payment Method:</strong> {order.paymentMethod}
                             </Typography>
+                            {order.outForDeliveryAt && (
+                                <Typography variant="body1">
+                                    <strong>Out for Delivery Date:</strong> {formatDate(order.outForDeliveryAt)}
+                                </Typography>
+                            )}
                             {order.completedAt && (
                                 <Typography variant="body1">
                                     <strong>Completed Date:</strong> {formatDate(order.completedAt)}

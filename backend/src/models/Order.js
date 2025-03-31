@@ -18,10 +18,21 @@ const OrderSchema = new Schema({
     date: { type: Date, required: true }
   },
   paymentMethod: { type: String, enum: ['e-wallet', 'bank-transfer', 'cash'], required: true },
+  paymentDetails: {
+    proofImage: { type: String },
+    referenceNumber: { type: String },
+    paymentDate: { type: Date },
+    verified: { type: Boolean, default: false }
+  },
   subtotal: { type: Number, required: true },
   total: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
+  status: { 
+    type: String, 
+    enum: ['pending', 'out_for_delivery', 'completed', 'cancelled'], 
+    default: 'pending' 
+  },
   createdAt: { type: Date, default: Date.now },
+  outForDeliveryAt: { type: Date },
   completedAt: { type: Date }
 }, {
     toJSON: {
@@ -34,22 +45,33 @@ const OrderSchema = new Schema({
     },
 })
 
-// Pre-save middleware to set completedAt date when status changes to 'completed'
+// Update pre-save middleware to handle outForDeliveryAt date
 OrderSchema.pre('save', function(next) {
-    // Check if status is being modified to 'completed'
+    // Set completedAt date when status changes to 'completed'
     if (this.isModified('status') && this.status === 'completed' && !this.completedAt) {
         this.completedAt = new Date();
     }
+    
+    // Set outForDeliveryAt date when status changes to 'out_for_delivery'
+    if (this.isModified('status') && this.status === 'out_for_delivery' && !this.outForDeliveryAt) {
+        this.outForDeliveryAt = new Date();
+    }
+    
     next();
 });
 
-// Middleware for findOneAndUpdate and findByIdAndUpdate operations
+// Update middleware for findOneAndUpdate operations
 OrderSchema.pre('findOneAndUpdate', function(next) {
     const update = this.getUpdate();
     
     // If updating to completed status and completedAt isn't set
     if (update.status === 'completed' && !update.completedAt) {
         update.completedAt = new Date();
+    }
+    
+    // If updating to out_for_delivery status and outForDeliveryAt isn't set
+    if (update.status === 'out_for_delivery' && !update.outForDeliveryAt) {
+        update.outForDeliveryAt = new Date();
     }
     
     next();
