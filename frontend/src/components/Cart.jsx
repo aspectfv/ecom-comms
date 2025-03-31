@@ -69,11 +69,11 @@ function Cart() {
                                                 <Typography variant="body1">{item.itemId.name}</Typography>
                                             </TableCell>
                                             <TableCell align="right">
-                                                ${item.itemId.price.toFixed(2)}
+                                                ₱{item.itemId.price.toFixed(2)}
                                             </TableCell>
                                             <TableCell align="right">{item.quantity}</TableCell>
                                             <TableCell align="right">
-                                                ${(item.quantity * item.itemId.price).toFixed(2)}
+                                                ₱{(item.quantity * item.itemId.price).toFixed(2)}
                                             </TableCell>
                                             <TableCell align="right">
                                                 <IconButton

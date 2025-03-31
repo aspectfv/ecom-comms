@@ -88,7 +88,7 @@ function Checkout() {
                                                 secondary={
                                                     <>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            ${item.itemId.price.toFixed(2)} × {item.quantity}
+                                                            ₱{item.itemId.price.toFixed(2)} × {item.quantity}
                                                         </Typography>
                                                         {item.itemId.inStock && (
                                                             <Chip
@@ -102,7 +102,7 @@ function Checkout() {
                                                 }
                                             />
                                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                                ${(item.itemId.price * item.quantity).toFixed(2)}
+                                                ₱{(item.itemId.price * item.quantity).toFixed(2)}
                                             </Typography>
                                         </ListItem>
                                     ))}
@@ -112,15 +112,15 @@ function Checkout() {
 
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     <Typography variant="body1">Subtotal:</Typography>
-                                    <Typography variant="body1">${subtotal.toFixed(2)}</Typography>
+                                    <Typography variant="body1">₱{subtotal.toFixed(2)}</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                     <Typography variant="body1">Shipping:</Typography>
-                                    <Typography variant="body1">${shippingFee.toFixed(2)}</Typography>
+                                    <Typography variant="body1">₱{shippingFee.toFixed(2)}</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px dashed #ddd' }}>
                                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
-                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>${total.toFixed(2)}</Typography>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>₱{total.toFixed(2)}</Typography>
                                 </Box>
                             </CardContent>
                         </Card>
@@ -199,7 +199,7 @@ function Checkout() {
                                                     label="Mode of Delivery"
                                                 >
                                                     <MenuItem value="pickup">Pickup (Free)</MenuItem>
-                                                    <MenuItem value="delivery">Delivery (+${shippingFee.toFixed(2)})</MenuItem>
+                                                    <MenuItem value="delivery">Delivery (+₱{shippingFee.toFixed(2)})</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>

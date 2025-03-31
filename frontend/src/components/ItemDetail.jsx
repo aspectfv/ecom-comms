@@ -190,7 +190,7 @@ export default function ItemDetail() {
                             </Box>
 
                             <Typography variant="h4" component="div" sx={{ fontWeight: 600 }}>
-                                ${item.price.toFixed(2)}
+                                ₱{item.price.toFixed(2)}
                             </Typography>
 
                             <Divider sx={{ my: 2 }} />
