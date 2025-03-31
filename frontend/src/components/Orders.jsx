@@ -75,7 +75,7 @@ function Orders() {
                                             </Grid>
                                             <Grid item xs={12} md={3}>
                                                 <Typography variant="subtitle1" color="text.secondary">Total</Typography>
-                                                <Typography variant="body1">${order.total.toFixed(2)}</Typography>
+                                                <Typography variant="body1">₱{order.total.toFixed(2)}</Typography>
                                             </Grid>
                                             <Grid item xs={12} md={3}>
                                                 <Typography variant="subtitle1" color="text.secondary">Status</Typography>
@@ -180,7 +180,7 @@ function Orders() {
                                                 <ListItem key={index} disablePadding>
                                                     <ListItemText
                                                         primary={`${item.itemId.name || "Item"} - Quantity: ${item.quantity}`}
-                                                        secondary={`Price: $${item.price.toFixed(2)}`}
+                                                        secondary={`Price: ₱${item.price.toFixed(2)}`}
                                                     />
                                                 </ListItem>
                                             ))}

@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 
 export default function Sales() {
     const salesData = useLoaderData(); // Load sales data from the loader
-    
+
     // Use search params for state persistence in URL
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     // Initialize states from URL params
     const [selectedOwner, setSelectedOwner] = useState(searchParams.get('owner') || '');
     const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
@@ -19,13 +19,13 @@ export default function Sales() {
         // Owner filter
         const ownerParam = searchParams.get('owner') || '';
         const matchesOwner = !ownerParam || sale.owner === ownerParam;
-        
+
         // Period filter
         const periodParam = searchParams.get('period') || '';
         const completedDate = new Date(sale.completedAt);
         const now = new Date();
         let matchesPeriod = true;
-        
+
         if (periodParam === 'Last 24 Hours') {
             const yesterday = new Date(now.setHours(now.getHours() - 24));
             matchesPeriod = completedDate >= yesterday;
@@ -40,20 +40,20 @@ export default function Sales() {
             matchesPeriod = completedDate >= firstDayOfYear;
         }
         // All-Time doesn't need filtering
-        
+
         return matchesOwner && matchesPeriod;
     });
 
     // Update a single search parameter
     const updateSearchParams = (key, value) => {
         const newParams = new URLSearchParams(searchParams);
-        
+
         if (value && value !== '') {
             newParams.set(key, value);
         } else {
             newParams.delete(key);
         }
-        
+
         setSearchParams(newParams);
     };
 
@@ -63,14 +63,14 @@ export default function Sales() {
         setSelectedOwner(value);
         updateSearchParams('owner', value);
     };
-    
+
     // Handle period selection change
     const handlePeriodChange = (e) => {
         const value = e.target.value === 'Period' ? '' : e.target.value;
         setSelectedPeriod(value);
         updateSearchParams('period', value);
     };
-    
+
     // Clear all filters
     const handleClearFilters = () => {
         setSelectedOwner('');
@@ -92,7 +92,7 @@ export default function Sales() {
             sale.itemName,
             sale.owner,
             new Date(sale.completedAt).toLocaleDateString(),
-            `$${sale.total.toFixed(2)}`
+            `₱${sale.total.toFixed(2)}`
         ]);
 
         const csvContent = [
@@ -113,13 +113,13 @@ export default function Sales() {
 
     return (
         <div>
-            <h1>Sales</h1> 
+            <h1>Sales</h1>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                 <div>
                     {/* Dynamic owner dropdown */}
-                    <select 
-                        value={selectedOwner || 'Owner'} 
+                    <select
+                        value={selectedOwner || 'Owner'}
                         onChange={handleOwnerChange}
                     >
                         {owners.map((owner, index) => (
@@ -130,8 +130,8 @@ export default function Sales() {
                     </select>
 
                     {/* Period dropdown */}
-                    <select 
-                        value={selectedPeriod || 'Period'} 
+                    <select
+                        value={selectedPeriod || 'Period'}
                         onChange={handlePeriodChange}
                     >
                         <option>Period</option>
@@ -172,7 +172,7 @@ export default function Sales() {
                                 <td>{sale.itemName}</td>
                                 <td>{sale.owner}</td>
                                 <td>{new Date(sale.completedAt).toLocaleDateString()}</td>
-                                <td>${sale.total.toFixed(2)}</td>
+                                <td>₱{sale.total.toFixed(2)}</td>
                             </tr>
                         ))
                     ) : (

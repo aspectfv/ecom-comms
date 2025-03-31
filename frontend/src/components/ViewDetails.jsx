@@ -1,25 +1,25 @@
 import { useLoaderData, Link, Form } from 'react-router-dom';
-import { 
-  Box, 
-  Button, 
-  Card, 
-  Container, 
-  Chip,
-  Divider, 
-  Grid, 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  TableFooter,
-  Typography 
+import {
+    Box,
+    Button,
+    Card,
+    Container,
+    Chip,
+    Divider,
+    Grid,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableFooter,
+    Typography
 } from '@mui/material';
-import { 
-  ArrowBack as ArrowBackIcon,
-  CheckCircle as CheckCircleIcon
+import {
+    ArrowBack as ArrowBackIcon,
+    CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 
 export default function ViewDetails() {
@@ -42,10 +42,10 @@ export default function ViewDetails() {
             <Typography variant="h3" component="h1" fontWeight={600} mb={4}>
                 Order Details
             </Typography>
-            
+
             <Box mb={4}>
-                <Button 
-                    component={Link} 
+                <Button
+                    component={Link}
                     to={`/${user.role}/orders`}
                     startIcon={<ArrowBackIcon />}
                     variant="outlined"
@@ -53,7 +53,7 @@ export default function ViewDetails() {
                     Back to Orders
                 </Button>
             </Box>
-            
+
             <Card sx={{ mb: 4, p: 3 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3}>
                     <Box>
@@ -64,25 +64,25 @@ export default function ViewDetails() {
                             <strong>Date:</strong> {formatDate(order.createdAt)}
                         </Typography>
                     </Box>
-                    
+
                     <Box textAlign="right">
-                        <Chip 
+                        <Chip
                             label={order.status.toUpperCase()}
                             color={order.status === 'completed' ? 'success' : 'warning'}
-                            sx={{ 
+                            sx={{
                                 fontWeight: 500,
                                 fontSize: '0.875rem',
                                 px: 2,
                                 py: 0.5
                             }}
                         />
-                        
+
                         {order.status === 'pending' && user.role === 'admin' && (
                             <Box mt={2}>
                                 {/* Using React Router's Form component instead of HTML form */}
                                 <Form method="post">
                                     <input type="hidden" name="action" value="markAsCompleted" />
-                                    <Button 
+                                    <Button
                                         type="submit"
                                         variant="contained"
                                         color="success"
@@ -95,9 +95,9 @@ export default function ViewDetails() {
                         )}
                     </Box>
                 </Box>
-                
+
                 <Divider sx={{ my: 3 }} />
-                
+
                 <Grid container spacing={4}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="h5" component="h3" fontWeight={500} mb={2}>
@@ -115,7 +115,7 @@ export default function ViewDetails() {
                             </Typography>
                         </Box>
                     </Grid>
-                    
+
                     <Grid item xs={12} md={6}>
                         <Typography variant="h5" component="h3" fontWeight={500} mb={2}>
                             Order Information
@@ -136,12 +136,12 @@ export default function ViewDetails() {
                     </Grid>
                 </Grid>
             </Card>
-            
+
             <Card sx={{ p: 3 }}>
                 <Typography variant="h5" component="h3" fontWeight={500} mb={3}>
                     Order Items
                 </Typography>
-                
+
                 <TableContainer component={Paper} elevation={0}>
                     <Table>
                         <TableHead>
@@ -156,21 +156,21 @@ export default function ViewDetails() {
                             {order.items.map((item, index) => (
                                 <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell component="th" scope="row">{item.itemId.name}</TableCell>
-                                    <TableCell>${item.price.toFixed(2)}</TableCell>
+                                    <TableCell>₱{item.price.toFixed(2)}</TableCell>
                                     <TableCell>{item.quantity}</TableCell>
-                                    <TableCell align="right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    <TableCell align="right">₱{(item.price * item.quantity).toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                         <TableFooter>
                             <TableRow>
                                 <TableCell colSpan={3} align="right" sx={{ fontWeight: 500 }}>Subtotal:</TableCell>
-                                <TableCell align="right">${order.subtotal.toFixed(2)}</TableCell>
+                                <TableCell align="right">₱{order.subtotal.toFixed(2)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell colSpan={3} align="right" sx={{ fontWeight: 600 }}>Total:</TableCell>
                                 <TableCell align="right" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
-                                    ${order.total.toFixed(2)}
+                                    ₱{order.total.toFixed(2)}
                                 </TableCell>
                             </TableRow>
                         </TableFooter>

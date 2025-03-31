@@ -59,7 +59,7 @@ function ItemCard({ item }) {
                     {item.category || 'General'}
                 </Typography>
                 <Typography variant="body1" fontWeight="bold">
-                    ${item.price.toFixed(2)}
+                    ₱{item.price.toFixed(2)}
                 </Typography>
             </CardContent>
         </Card>
