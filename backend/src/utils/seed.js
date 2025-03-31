@@ -77,10 +77,10 @@ const seedDatabase = async () => {
 
         console.log('Users created');
 
-        // Create items
-        const items = await Item.insertMany([
+        // Create items sequentially instead of with insertMany
+        console.log('Creating items...');
+        const itemsData = [
             {
-                itemCode: 'PL001',
                 name: 'Vintage Leather Jacket',
                 price: 89.99,
                 owner: 'Jane Collector',
@@ -92,7 +92,6 @@ const seedDatabase = async () => {
                 createdBy: admin._id
             },
             {
-                itemCode: 'PL002',
                 name: 'Antique Coffee Table',
                 price: 199.99,
                 owner: 'Vintage Homes',
@@ -104,7 +103,6 @@ const seedDatabase = async () => {
                 createdBy: staff._id
             },
             {
-                itemCode: 'PL003',
                 name: 'Retro Polaroid Camera',
                 price: 59.99,
                 owner: 'Camera Collectors',
@@ -116,7 +114,6 @@ const seedDatabase = async () => {
                 createdBy: admin._id
             },
             {
-                itemCode: 'BN001',
                 name: 'Modern Desk Lamp',
                 price: 34.99,
                 owner: 'Home Essentials',
@@ -128,7 +125,6 @@ const seedDatabase = async () => {
                 createdBy: staff._id
             },
             {
-                itemCode: 'BN002',
                 name: 'Wireless Headphones',
                 price: 129.99,
                 owner: 'Tech World',
@@ -140,7 +136,6 @@ const seedDatabase = async () => {
                 createdBy: admin._id
             },
             {
-                itemCode: 'BN003',
                 name: 'Ceramic Plant Pot',
                 price: 19.99,
                 owner: 'Green Thumb',
@@ -151,7 +146,15 @@ const seedDatabase = async () => {
                 images: ['images/pot1.jpg', 'images/pot2.jpg'],
                 createdBy: staff._id
             }
-        ]);
+        ];
+
+        // Create each item individually to trigger pre-save hooks
+        const items = [];
+        for (const itemData of itemsData) {
+            const item = await Item.create(itemData);
+            items.push(item);
+            console.log(`Created item: ${item.name} with code: ${item.itemCode}`);
+        }
 
         console.log('Items created');
 

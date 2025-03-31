@@ -228,14 +228,17 @@ export default function AddNewListing() {
                     required
                   >
                     <MenuItem value="">Select a category</MenuItem>
-                    <MenuItem value="Sports & Outdoor">Sports & Outdoor</MenuItem>
+                    <MenuItem value="Adult Clothing">Adult Clothing</MenuItem>
+                    <MenuItem value="Clothing">Clothing</MenuItem>
                     <MenuItem value="Electronics">Electronics</MenuItem>
+                    <MenuItem value="Furniture">Furniture</MenuItem>
+                    <MenuItem value="Home & Lifestyle">Home & Lifestyle</MenuItem>
+                    <MenuItem value="Home Decor">Home Decor</MenuItem>
                     <MenuItem value="Kids' Costumes">Kids' Costumes</MenuItem>
+                    <MenuItem value="School & Office">School & Office</MenuItem>
+                    <MenuItem value="Sports & Outdoor">Sports & Outdoor</MenuItem>
                     <MenuItem value="Toys & Games">Toys & Games</MenuItem>
                     <MenuItem value="Others">Others</MenuItem>
-                    <MenuItem value="Adult Clothing">Adult Clothing</MenuItem>
-                    <MenuItem value="School & Office">School & Office</MenuItem>
-                    <MenuItem value="Home & Lifestyle">Home & Lifestyle</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
