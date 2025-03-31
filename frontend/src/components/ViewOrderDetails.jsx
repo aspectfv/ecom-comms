@@ -84,20 +84,22 @@ export default function ViewOrderDetails() {
 
                         {order.status === 'pending' && user.role === 'admin' && (
                             <Box mt={2} sx={{ display: 'flex', gap: 2 }}>
-                                {/* Out for Delivery button */}
-                                <Form method="post">
-                                    <input type="hidden" name="action" value="markAsOutForDelivery" />
-                                    <Button
-                                        type="submit"
-                                        variant="contained"
-                                        color="primary"
-                                        startIcon={<LocalShippingIcon />}
-                                    >
-                                        Mark as Out for Delivery
-                                    </Button>
-                                </Form>
+                                {/* Out for Delivery button - only show for delivery mode */}
+                                {order.deliveryDetails.mode === 'delivery' && (
+                                    <Form method="post">
+                                        <input type="hidden" name="action" value="markAsOutForDelivery" />
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<LocalShippingIcon />}
+                                        >
+                                            Mark as Out for Delivery
+                                        </Button>
+                                    </Form>
+                                )}
 
-                                {/* Existing Mark as Completed button */}
+                                {/* Mark as Completed button - show for all orders */}
                                 <Form method="post">
                                     <input type="hidden" name="action" value="markAsCompleted" />
                                     <Button
