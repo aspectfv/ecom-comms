@@ -17,6 +17,7 @@ import AddNewListing from './components/AddNewListing';
 import ViewOrderDetails from './components/ViewOrderDetails';
 import AdminOrders from './components/AdminOrders';
 import ViewItemDetails from './components/ViewItemDetails';
+import EditItemListing from './components/EditItemListing';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
@@ -30,6 +31,7 @@ import { adminOrdersLoader } from './routes/adminOrdersRoutes';
 import { addNewListingAction } from './routes/addNewListingRoutes';
 import { viewOrderDetailsLoader, viewOrderDetailsAction } from './routes/ViewOrderDetailsRoutes';
 import { viewItemDetailsLoader } from './routes/viewItemDetailsRoutes';
+import { editItemListingLoader, editItemListingAction } from './routes/editItemListingRoutes';
 
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -134,6 +136,12 @@ const router = createBrowserRouter([
                 path: 'add-new-listing',
                 element: <AddNewListing />,
                 action: addNewListingAction,
+            },
+            {
+                path: 'edit-listing/:id',
+                element: <EditItemListing />,
+                loader: editItemListingLoader,
+                action: editItemListingAction,
             },
             {
                 path: 'order/:id',

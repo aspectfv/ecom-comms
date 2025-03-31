@@ -33,7 +33,8 @@ import {
     Add as AddIcon,
     FileDownload as FileDownloadIcon,
     Delete as DeleteIcon,
-  Visibility as VisibilityIcon
+  Visibility as VisibilityIcon,
+  Edit as EditIcon
 } from '@mui/icons-material';
 import { deleteItem } from '../services/api';
 
@@ -169,6 +170,12 @@ export default function Inventory() {
             setIsDeleting(false);
         }
     };
+
+  // Add a new handler for editing items
+  const handleEditItem = (itemId, e) => {
+    e.stopPropagation();
+    navigate(`/${user.role}/edit-listing/${itemId}`);
+  };
 
     return (
         <Container maxWidth={false} sx={{ p: 3 }}>
@@ -328,6 +335,17 @@ export default function Inventory() {
                         >
                           View
                         </Button>
+                                              {user.role === 'admin' && (
+                        <Button
+                          onClick={(e) => handleEditItem(item.id, e)}
+                          startIcon={<EditIcon />}
+                          color="secondary"
+                          size="small"
+                          variant="outlined"
+                        >
+                          Edit
+                        </Button>
+                      )}
                                               <Button
                                                   onClick={(e) => {
                             e.stopPropagation();
