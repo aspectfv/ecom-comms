@@ -22,7 +22,7 @@ import {
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 
-export default function ViewDetails() {
+export default function ViewOrderDetails() {
     const order = useLoaderData();
     const user = JSON.parse(localStorage.getItem('user'));
 

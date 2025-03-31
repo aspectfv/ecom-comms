@@ -14,8 +14,9 @@ import Orders from './components/Orders';
 import Management from './components/Management';
 import Inventory from './components/Inventory';
 import AddNewListing from './components/AddNewListing';
-import ViewDetails from './components/ViewDetails';
+import ViewOrderDetails from './components/ViewOrderDetails';
 import AdminOrders from './components/AdminOrders';
+import ViewItemDetails from './components/ViewItemDetails';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
@@ -27,7 +28,8 @@ import { loginLoader, loginAction, registerAction } from './routes/authRoutes';
 import { inventoryLoader } from './routes/inventoryRoutes';
 import { adminOrdersLoader } from './routes/adminOrdersRoutes';
 import { addNewListingAction } from './routes/addNewListingRoutes';
-import { viewDetailsLoader, viewDetailsAction } from './routes/viewDetailsRoutes';
+import { viewOrderDetailsLoader, viewOrderDetailsAction } from './routes/ViewOrderDetailsRoutes';
+import { viewItemDetailsLoader } from './routes/viewItemDetailsRoutes';
 
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -135,9 +137,14 @@ const router = createBrowserRouter([
             },
             {
                 path: 'order/:id',
-                element: <ViewDetails />,
-                loader: viewDetailsLoader,
-                action: viewDetailsAction,
+                element: <ViewOrderDetails />,
+                loader: viewOrderDetailsLoader,
+                action: viewOrderDetailsAction,
+            },
+            {
+                path: 'item/:id',
+                element: <ViewItemDetails />,
+                loader: viewItemDetailsLoader
             },
         ],
     },
@@ -162,6 +169,11 @@ const router = createBrowserRouter([
                 path: 'add-new-listing',
                 element: <AddNewListing />,
                 action: addNewListingAction,
+            },
+            {
+                path: 'item/:id',
+                element: <ViewItemDetails />,
+                loader: viewItemDetailsLoader
             },
         ],
     },
