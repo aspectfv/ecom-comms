@@ -1,37 +1,39 @@
 import { useState } from 'react';
 import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
-import {
-    Box,
-    Button,
-    Card,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Divider,
-    FormControl,
-    InputAdornment,
-    InputLabel,
-    MenuItem,
-    Paper,
-    Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField,
-    Typography
+import { 
+  Box, 
+  Button, 
+  Card, 
+  Container, 
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider, 
+  FormControl, 
+  InputAdornment, 
+  InputLabel, 
+  MenuItem, 
+  Paper, 
+  Select, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TextField, 
+  Typography,
+  Avatar
 } from '@mui/material';
 import {
     Search as SearchIcon,
     Clear as ClearIcon,
     Add as AddIcon,
     FileDownload as FileDownloadIcon,
-    Delete as DeleteIcon
+    Delete as DeleteIcon,
+  Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import { deleteItem } from '../services/api';
 
@@ -128,6 +130,11 @@ export default function Inventory() {
         setSelectedCategory('');
         setSearchParams({});
     };
+
+  // Handle viewing item details
+  const handleViewItem = (itemId) => {
+    navigate(`/${user.role}/item/${itemId}`);
+  };
 
     // Step 1: Open dialog when delete button is clicked
     const handleDeleteClick = (item) => {
@@ -269,41 +276,77 @@ export default function Inventory() {
                     <Table>
                         <TableHead>
                             <TableRow>
+                <TableCell>IMAGE</TableCell>
                                 <TableCell>ITEM CODE</TableCell>
                                 <TableCell>ITEM NAME</TableCell>
                                 <TableCell>CATEGORY</TableCell>
                                 <TableCell>TYPE</TableCell>
                                 <TableCell>PRICE</TableCell>
                                 <TableCell>OWNER</TableCell>
-                                <TableCell>ACTION</TableCell>
+                                <TableCell>ACTIONS</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredItems.length > 0 ? (
                                 filteredItems.map(item => (
-                                    <TableRow key={item.id} hover>
+                                    <TableRow 
+                    key={item.id} 
+                    hover
+                    sx={{ 
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      }
+                    }}
+                    onClick={() => handleViewItem(item.id)}
+                  >
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Avatar
+                        src={item.images && item.images.length > 0 ? item.images[0] : ''}
+                        alt={item.name}
+                        variant="rounded"
+                        sx={{ width: 50, height: 50 }}
+                      />
+                    </TableCell>
                                         <TableCell>{item.itemCode}</TableCell>
                                         <TableCell>{item.name}</TableCell>
                                         <TableCell>{item.category}</TableCell>
                                         <TableCell>{item.type === 'preloved' ? 'Pre-loved' : 'Brand New'}</TableCell>
                                         <TableCell>₱{item.price.toFixed(2)}</TableCell>
                                         <TableCell>{item.owner}</TableCell>
-                                        <TableCell>
-                                            <Button
-                                                onClick={() => handleDeleteClick(item)}
-                                                disabled={isDeleting}
-                                                startIcon={<DeleteIcon />}
-                                                color="error"
-                                                size="small"
-                                            >
-                                                Delete
-                                            </Button>
+                                        <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewItem(item.id);
+                          }}
+                          startIcon={<VisibilityIcon />}
+                          color="primary"
+                          size="small"
+                          variant="outlined"
+                        >
+                          View
+                        </Button>
+                                              <Button
+                                                  onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(item);
+                          }}
+                                                  disabled={isDeleting}
+                                                  startIcon={<DeleteIcon />}
+                                                  color="error"
+                                                  size="small"
+                                              >
+                                                  Delete
+                                              </Button>
+                      </Box>
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
+                                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
                                         <Typography variant="body1" color="text.secondary">
                                             No items found matching the selected filters.
                                         </Typography>

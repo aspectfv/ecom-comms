@@ -1,7 +1,7 @@
 import { getOrderById, updateOrder } from '../services/api';
 
 
-export const viewDetailsLoader = async ({ params }) => {
+export const viewOrderDetailsLoader = async ({ params }) => {
     try {
         const response = await getOrderById(params.id);
         return response.data;
@@ -11,7 +11,7 @@ export const viewDetailsLoader = async ({ params }) => {
     }
 };
 
-export const viewDetailsAction = async ({ request, params }) => {
+export const viewOrderDetailsAction = async ({ request, params }) => {
     const formData = await request.formData();
     const action = formData.get('action');
     const user = JSON.parse(localStorage.getItem('user'));
