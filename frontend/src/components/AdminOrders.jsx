@@ -1,18 +1,12 @@
-import { useState } from 'react';
-import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useContext } from 'react';
+import { useLoaderData, Link, useNavigate } from 'react-router-dom';
 import {
     Box,
     Button,
     Card,
     Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     Divider,
     FormControl,
-    InputAdornment,
     InputLabel,
     MenuItem,
     Paper,
@@ -23,23 +17,20 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TextField,
     Typography
 } from '@mui/material';
 import {
-    Search as SearchIcon,
-    Clear as ClearIcon,
     Visibility,
     FileDownload as FileDownloadIcon
 } from '@mui/icons-material';
+import { SearchContext } from './Management';
 
 export default function AdminOrders() {
     const orders = useLoaderData();
     const user = JSON.parse(localStorage.getItem('user'));
     const navigate = useNavigate();
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+    const { searchParams, updateSearchParams } = useContext(SearchContext);
     const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
     const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
 
@@ -75,27 +66,6 @@ export default function AdminOrders() {
         return matchesSearch && matchesStatus && matchesPeriod;
     });
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        updateSearchParams('q', searchInput);
-    };
-
-    const updateSearchParams = (key, value) => {
-        const newParams = new URLSearchParams(searchParams);
-
-        if (value && value !== '') {
-            newParams.set(key, value);
-        } else {
-            newParams.delete(key);
-        }
-
-        setSearchParams(newParams);
-    };
-
-    const handleSearchInputChange = (e) => {
-        setSearchInput(e.target.value);
-    };
-
     const handleStatusChange = (e) => {
         const value = e.target.value === 'All Statuses' ? '' : e.target.value;
         setSelectedStatus(value);
@@ -109,7 +79,6 @@ export default function AdminOrders() {
     };
 
     const handleClearFilters = () => {
-        setSearchInput('');
         setSelectedStatus('');
         setSelectedPeriod('');
         setSearchParams({});
@@ -147,59 +116,6 @@ export default function AdminOrders() {
 
     return (
         <Container maxWidth={false} sx={{ p: 3 }}>
-            {/* Header with search and user info */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 4
-                }}
-            >
-                <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                        variant="outlined"
-                        size="small"
-                        placeholder="Search orders..."
-                        value={searchInput}
-                        onChange={handleSearchInputChange}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{ minWidth: 300 }}
-                    />
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                    >
-                        Search
-                    </Button>
-                    {searchParams.size > 0 && (
-                        <Button
-                            onClick={handleClearFilters}
-                            startIcon={<ClearIcon />}
-                            color="secondary"
-                        >
-                            Clear Filters
-                        </Button>
-                    )}
-                </Box>
-
-                <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="subtitle1" fontWeight={500}>
-                        {user?.fullName || user?.username || 'Admin'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        {user?.role || 'Admin'}
-                    </Typography>
-                </Box>
-            </Box>
-
             {/* Orders content */}
             <Card sx={{ p: 3, mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>

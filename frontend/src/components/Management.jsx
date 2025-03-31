@@ -1,4 +1,5 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, createContext } from 'react';
 import { 
   Box, 
   Button, 
@@ -11,22 +12,67 @@ import {
   ListItemText, 
   Typography,
   Paper,
-  Avatar
+  Avatar,
+  TextField,
+  InputAdornment
 } from '@mui/material';
 import { 
   Inventory as InventoryIcon,
   ShoppingCart as OrdersIcon,
   Logout as LogoutIcon,
-  Dashboard as DashboardIcon 
+  Dashboard as DashboardIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon
 } from '@mui/icons-material';
+
+// Create a context to share search functionality with child components
+export const SearchContext = createContext();
 
 export default function Management() {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+
+  // Determine if we're on the inventory or orders page
+  const isInventoryPage = location.pathname.includes('/inventory');
+  const isOrdersPage = location.pathname.includes('/orders');
+  
+  // Reset search input when changing pages
+  useEffect(() => {
+    setSearchInput(searchParams.get('q') || '');
+  }, [location.pathname, searchParams]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    updateSearchParams('q', searchInput);
+  };
+
+  const updateSearchParams = (key, value) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (value && value !== '') {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+
+    setSearchParams(newParams);
+  };
+
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleClearFilters = () => {
+    setSearchInput('');
+    setSearchParams({});
   };
 
   const drawerWidth = 240;
@@ -63,6 +109,7 @@ export default function Management() {
             <ListItemButton 
               component={Link} 
               to={`/${user?.role}/inventory`}
+              selected={isInventoryPage}
               sx={{
                 '&.Mui-selected': {
                   backgroundColor: 'rgba(0, 0, 0, 0.04)',
@@ -85,6 +132,7 @@ export default function Management() {
               <ListItemButton 
                 component={Link} 
                 to="/admin/orders"
+                selected={isOrdersPage}
                 sx={{
                   '&.Mui-selected': {
                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
@@ -126,12 +174,77 @@ export default function Management() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
           backgroundColor: '#ffffff',
-          minHeight: '100vh'
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
-        <Outlet />
+        {/* Common search header */}
+        <Box
+          sx={{
+            p: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2
+          }}
+        >
+          <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder={isInventoryPage ? "Looking for an item?" : "Search orders..."}
+              value={searchInput}
+              onChange={handleSearchInputChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ minWidth: 300 }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              Search
+            </Button>
+            {searchParams.size > 0 && (
+              <Button
+                onClick={handleClearFilters}
+                startIcon={<ClearIcon />}
+                color="secondary"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </Box>
+
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="subtitle1" fontWeight={500}>
+              {user?.fullName || user?.username || user?.role}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {user?.role || 'Staff'}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Provide search context to child components */}
+        <SearchContext.Provider value={{ 
+          searchParams, 
+          setSearchParams, 
+          searchInput, 
+          updateSearchParams
+        }}>
+          <Box sx={{ p: 3, flex: 1 }}>
+            <Outlet />
+          </Box>
+        </SearchContext.Provider>
       </Box>
     </Box>
   );

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useLoaderData, Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useContext } from 'react';
+import { useLoaderData, Link, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Button, 
@@ -37,13 +37,14 @@ import {
   Edit as EditIcon
 } from '@mui/icons-material';
 import { deleteItem } from '../services/api';
+import { SearchContext } from './Management';
 
 export default function Inventory() {
     const inventoryItems = useLoaderData();
     const user = JSON.parse(localStorage.getItem('user'));
     const navigate = useNavigate();
 
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { searchParams, updateSearchParams } = useContext(SearchContext);
     const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
     const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
     const [isDeleting, setIsDeleting] = useState(false);
@@ -71,18 +72,6 @@ export default function Inventory() {
     const handleSearch = (e) => {
         e.preventDefault();
         updateSearchParams('q', searchInput);
-    };
-
-    const updateSearchParams = (key, value) => {
-        const newParams = new URLSearchParams(searchParams);
-
-        if (value && value !== '') {
-            newParams.set(key, value);
-        } else {
-            newParams.delete(key);
-        }
-
-        setSearchParams(newParams);
     };
 
     const handleSearchInputChange = (e) => {
@@ -179,59 +168,6 @@ export default function Inventory() {
 
     return (
         <Container maxWidth={false} sx={{ p: 3 }}>
-            {/* Header with search and user info */}
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 4
-                }}
-            >
-                <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                        variant="outlined"
-                        size="small"
-                        placeholder="Looking for an item?"
-                        value={searchInput}
-                        onChange={handleSearchInputChange}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{ minWidth: 300 }}
-                    />
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                    >
-                        Search
-                    </Button>
-                    {searchParams.size > 0 && (
-                        <Button
-                            onClick={handleClearFilters}
-                            startIcon={<ClearIcon />}
-                            color="secondary"
-                        >
-                            Clear Filters
-                        </Button>
-                    )}
-                </Box>
-
-                <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="subtitle1" fontWeight={500}>
-                        {user?.fullName || user?.username || 'Staff'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        {user?.role || 'Staff'}
-                    </Typography>
-                </Box>
-            </Box>
-
             {/* Inventory content */}
             <Card sx={{ p: 3, mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
