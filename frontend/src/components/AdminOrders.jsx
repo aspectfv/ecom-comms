@@ -17,13 +17,17 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Typography
+    Typography,
+    Menu
 } from '@mui/material';
 import {
     Visibility,
-    FileDownload as FileDownloadIcon
+    FileDownload as FileDownloadIcon,
+    PictureAsPdf as PdfIcon
 } from '@mui/icons-material';
 import { SearchContext } from './Management';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function AdminOrders() {
     const orders = useLoaderData();
@@ -33,6 +37,10 @@ export default function AdminOrders() {
     const { searchParams, updateSearchParams } = useContext(SearchContext);
     const [selectedStatus, setSelectedStatus] = useState(searchParams.get('status') || '');
     const [selectedPeriod, setSelectedPeriod] = useState(searchParams.get('period') || '');
+    
+    // Export menu state
+    const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState(null);
+    const isExportMenuOpen = Boolean(exportMenuAnchorEl);
 
     const filteredOrders = orders.filter(order => {
         const searchQuery = searchParams.get('q') || '';
@@ -66,6 +74,93 @@ export default function AdminOrders() {
         return matchesSearch && matchesStatus && matchesPeriod;
     });
 
+    // Handle export menu
+    const handleExportMenuOpen = (event) => {
+        setExportMenuAnchorEl(event.currentTarget);
+    };
+    
+    const handleExportMenuClose = () => {
+        setExportMenuAnchorEl(null);
+    };
+
+    const handleExportCSV = () => {
+        handleExportMenuClose();
+        
+        if (!filteredOrders || filteredOrders.length === 0) {
+            alert('No orders data to export.');
+            return;
+        }
+
+        const headers = ['ORDER NUMBER', 'CUSTOMER', 'DATE', 'TOTAL', 'STATUS'];
+        const rows = filteredOrders.map(order => [
+            order.orderNumber,
+            order.deliveryDetails.fullName,
+            new Date(order.createdAt).toLocaleDateString(),
+            `₱${order.total.toFixed(2)}`,
+            order.status.replace(/_/g, ' ').toUpperCase()
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'orders_data.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    
+    const handleExportPDF = () => {
+        handleExportMenuClose();
+        
+        if (!filteredOrders || filteredOrders.length === 0) {
+            alert('No orders data to export.');
+            return;
+        }
+        
+        // Initialize PDF document
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Orders List', 14, 20);
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 26);
+        
+        // Define table columns and rows
+        const tableColumn = ['Order Number', 'Customer', 'Date', 'Total', 'Status'];
+        const tableRows = filteredOrders.map(order => [
+            order.orderNumber,
+            order.deliveryDetails.fullName,
+            new Date(order.createdAt).toLocaleDateString(),
+            `₱${order.total.toFixed(2)}`,
+            order.status
+        ]);
+        
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30,
+            styles: { fontSize: 8, cellPadding: 3 },
+            headStyles: { fillColor: [66, 66, 66] },
+            alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+        
+        // Add total count
+        const finalY = (doc.lastAutoTable && doc.lastAutoTable.finalY) || 30;
+        doc.text(`Total Orders: ${filteredOrders.length}`, 14, finalY + 10);
+        
+        // Save the PDF
+        doc.save('orders_list.pdf');
+    };
+
     const handleStatusChange = (e) => {
         const value = e.target.value === 'All Statuses' ? '' : e.target.value;
         setSelectedStatus(value);
@@ -91,36 +186,6 @@ export default function AdminOrders() {
         setSearchParams({});
     };
 
-    const handleExportList = () => {
-        if (!filteredOrders || filteredOrders.length === 0) {
-            alert('No orders data to export.');
-            return;
-        }
-
-        const headers = ['ORDER NUMBER', 'CUSTOMER', 'DATE', 'TOTAL', 'STATUS'];
-        const rows = filteredOrders.map(order => [
-            order.orderNumber,
-            order.deliveryDetails.fullName,
-            new Date(order.createdAt).toLocaleDateString(),
-            `₱${order.total.toFixed(2)}`,
-            order.status
-        ]);
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'orders_data.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
     return (
         <Container maxWidth={false} sx={{ p: 3 }}>
             {/* Orders content */}
@@ -132,12 +197,30 @@ export default function AdminOrders() {
 
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button
-                            onClick={handleExportList}
+                            onClick={handleExportMenuOpen}
                             startIcon={<FileDownloadIcon />}
                             variant="outlined"
                         >
-                            Export List
+                            Export
                         </Button>
+                        <Menu
+                            anchorEl={exportMenuAnchorEl}
+                            open={isExportMenuOpen}
+                            onClose={handleExportMenuClose}
+                        >
+                            <MenuItem onClick={handleExportCSV}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <FileDownloadIcon fontSize="small" />
+                                    <Typography>Export as CSV</Typography>
+                                </Box>
+                            </MenuItem>
+                            <MenuItem onClick={handleExportPDF}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <PdfIcon fontSize="small" />
+                                    <Typography>Export as PDF</Typography>
+                                </Box>
+                            </MenuItem>
+                        </Menu>
                     </Box>
                 </Box>
 

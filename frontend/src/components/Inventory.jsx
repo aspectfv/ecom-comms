@@ -25,7 +25,9 @@ import {
   TableRow, 
   TextField, 
   Typography,
-  Avatar
+  Avatar,
+  Menu,
+  MenuItem as MuiMenuItem
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -33,11 +35,14 @@ import {
     Add as AddIcon,
     FileDownload as FileDownloadIcon,
     Delete as DeleteIcon,
-  Visibility as VisibilityIcon,
-  Edit as EditIcon
+    Visibility as VisibilityIcon,
+    Edit as EditIcon,
+    PictureAsPdf as PdfIcon
 } from '@mui/icons-material';
 import { deleteItem } from '../services/api';
 import { SearchContext } from './Management';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function Inventory() {
     const inventoryItems = useLoaderData();
@@ -48,6 +53,10 @@ export default function Inventory() {
     const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
     const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
     const [isDeleting, setIsDeleting] = useState(false);
+    
+    // Export menu state
+    const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState(null);
+    const isExportMenuOpen = Boolean(exportMenuAnchorEl);
 
     // Add state for dialog control
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -83,8 +92,19 @@ export default function Inventory() {
         setSelectedCategory(value);
         updateSearchParams('category', value);
     };
+    
+    // Handle export menu
+    const handleExportMenuOpen = (event) => {
+        setExportMenuAnchorEl(event.currentTarget);
+    };
+    
+    const handleExportMenuClose = () => {
+        setExportMenuAnchorEl(null);
+    };
 
-    const handleExportList = () => {
+    const handleExportCSV = () => {
+        handleExportMenuClose();
+        
         if (!filteredItems || filteredItems.length === 0) {
             alert('No items to export.');
             return;
@@ -114,6 +134,54 @@ export default function Inventory() {
         link.click();
         document.body.removeChild(link);
     };
+    
+    const handleExportPDF = () => {
+        handleExportMenuClose();
+        
+        if (!filteredItems || filteredItems.length === 0) {
+            alert('No items to export.');
+            return;
+        }
+        
+        // Initialize PDF document
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Inventory List', 14, 20);
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 26);
+        
+        // Define table columns and rows
+        const tableColumn = ['Item Code', 'Item Name', 'Category', 'Type', 'Price', 'Owner'];
+        const tableRows = filteredItems.map(item => [
+            item.itemCode,
+            item.name,
+            item.category,
+            item.type === 'preloved' ? 'Pre-loved' : 'Brand New',
+            `₱${item.price.toFixed(2)}`,
+            item.owner
+        ]);
+        
+        // Use the imported autoTable function directly
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30,
+            styles: { fontSize: 8, cellPadding: 3 },
+            headStyles: { fillColor: [66, 66, 66] },
+            alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+        
+        // Add total count - note the different way to get the final Y position
+        const finalY = (doc.lastAutoTable && doc.lastAutoTable.finalY) || 30;
+        doc.text(`Total Items: ${filteredItems.length}`, 14, finalY + 10);
+        
+        // Save the PDF
+        doc.save('inventory_list.pdf');
+    };
 
     const handleClearFilters = () => {
         setSearchInput('');
@@ -121,10 +189,10 @@ export default function Inventory() {
         setSearchParams({});
     };
 
-  // Handle viewing item details
-  const handleViewItem = (itemId) => {
-    navigate(`/${user.role}/item/${itemId}`);
-  };
+    // Handle viewing item details
+    const handleViewItem = (itemId) => {
+        navigate(`/${user.role}/item/${itemId}`);
+    };
 
     // Step 1: Open dialog when delete button is clicked
     const handleDeleteClick = (item) => {
@@ -160,11 +228,11 @@ export default function Inventory() {
         }
     };
 
-  // Add a new handler for editing items
-  const handleEditItem = (itemId, e) => {
-    e.stopPropagation();
-    navigate(`/${user.role}/edit-listing/${itemId}`);
-  };
+    // Add a new handler for editing items
+    const handleEditItem = (itemId, e) => {
+        e.stopPropagation();
+        navigate(`/${user.role}/edit-listing/${itemId}`);
+    };
 
     return (
         <Container maxWidth={false} sx={{ p: 3 }}>
@@ -177,12 +245,30 @@ export default function Inventory() {
 
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button
-                            onClick={handleExportList}
+                            onClick={handleExportMenuOpen}
                             startIcon={<FileDownloadIcon />}
                             variant="outlined"
                         >
-                            Export List
+                            Export
                         </Button>
+                        <Menu
+                            anchorEl={exportMenuAnchorEl}
+                            open={isExportMenuOpen}
+                            onClose={handleExportMenuClose}
+                        >
+                            <MuiMenuItem onClick={handleExportCSV}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <FileDownloadIcon fontSize="small" />
+                                    <Typography>Export as CSV</Typography>
+                                </Box>
+                            </MuiMenuItem>
+                            <MuiMenuItem onClick={handleExportPDF}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <PdfIcon fontSize="small" />
+                                    <Typography>Export as PDF</Typography>
+                                </Box>
+                            </MuiMenuItem>
+                        </Menu>
                         <Button
                             component={Link}
                             to={`/${user.role}/add-new-listing`}
