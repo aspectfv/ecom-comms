@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router-dom";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
     Box,
     Button,
@@ -17,12 +17,15 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Container
+    Container,
+    Avatar,
+    ListItemAvatar
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 import Header from './Header';
 import Footer from './Footer';
+
 
 function Orders() {
     const orders = useLoaderData();
@@ -35,6 +38,8 @@ function Orders() {
     const closeOrderDetails = () => {
         setSelectedOrder(null);
     };
+
+    // Removed the useEffect hook
 
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -121,8 +126,9 @@ function Orders() {
 
                         <DialogContent dividers>
                             <Grid container spacing={4}>
+                                {/* Customer Information */}
                                 <Grid item xs={12} md={6}>
-                                    <Paper elevation={0} sx={{ p: 3 }}>
+                                    <Paper elevation={0} sx={{ p: 3, height: '100%' }}>
                                         <Typography variant="h3" gutterBottom>Customer Information</Typography>
                                         <List dense>
                                             <ListItem disablePadding>
@@ -156,8 +162,9 @@ function Orders() {
                                     </Paper>
                                 </Grid>
 
+                                {/* Delivery Information */}
                                 <Grid item xs={12} md={6}>
-                                    <Paper elevation={0} sx={{ p: 3 }}>
+                                    <Paper elevation={0} sx={{ p: 3, height: '100%' }}>
                                         <Typography variant="h3" gutterBottom>Delivery Information</Typography>
                                         <List dense>
                                             <ListItem disablePadding>
@@ -177,26 +184,44 @@ function Orders() {
                                     </Paper>
                                 </Grid>
 
+                                {/* Order Items */}
                                 <Grid item xs={12}>
                                     <Paper elevation={0} sx={{ p: 3 }}>
                                         <Typography variant="h3" gutterBottom>Order Items</Typography>
                                         <List>
                                             {selectedOrder.items.map((item, index) => (
-                                                <ListItem key={index} disablePadding>
-                                                    <ListItemText
-                                                        primary={`${item.itemId.name || "Item"} - Quantity: ${item.quantity}`}
-                                                        secondary={`Price: ₱${item.price.toFixed(2)}`}
-                                                    />
-                                                </ListItem>
+                                                <Fragment key={`${item.itemId?._id || index}-${index}`}>
+                                                    <ListItem disablePadding sx={{ py: 1.5 }}>
+                                                        {/* Conditionally render Avatar if image exists */}
+                                                        {item.itemId?.images?.[0] && (
+                                                            <ListItemAvatar>
+                                                                <Avatar
+                                                                    variant="square" // Often better for product images
+                                                                    src={item.itemId.images[0]}
+                                                                    alt={item.itemId.name || 'Item image'}
+                                                                    sx={{ width: 56, height: 56, mr: 2, borderRadius: 1 }} // Adjust size and margin
+                                                                />
+                                                            </ListItemAvatar>
+                                                        )}
+                                                        <ListItemText
+                                                            primary={`${item.itemId?.name || "Item Name Unavailable"} - Quantity: ${item.quantity}`} // Safer access to name
+                                                            secondary={`Price: ₱${item.price.toFixed(2)}`}
+                                                            primaryTypographyProps={{ fontWeight: 'medium' }}
+                                                        />
+                                                    </ListItem>
+                                                    {index < selectedOrder.items.length - 1 && (
+                                                        <Divider component="li" variant="inset" />
+                                                    )}
+                                                </Fragment>
                                             ))}
                                         </List>
 
                                         <Box sx={{ mt: 3, textAlign: 'right' }}>
                                             <Typography variant="body1" sx={{ mb: 1 }}>
-                                                <strong>Subtotal:</strong> ${selectedOrder.subtotal.toFixed(2)}
+                                                <strong>Subtotal:</strong> ₱{selectedOrder.subtotal.toFixed(2)} {/* Corrected currency */}
                                             </Typography>
                                             <Typography variant="h6">
-                                                <strong>Total:</strong> ${selectedOrder.total.toFixed(2)}
+                                                <strong>Total:</strong> ₱{selectedOrder.total.toFixed(2)} {/* Corrected currency */}
                                             </Typography>
                                         </Box>
                                     </Paper>
@@ -204,7 +229,7 @@ function Orders() {
                             </Grid>
                         </DialogContent>
 
-                        <DialogActions>
+                        <DialogActions sx={{ p: 2 }}>
                             <Button
                                 onClick={closeOrderDetails}
                                 color="primary"
@@ -223,4 +248,3 @@ function Orders() {
 }
 
 export default Orders;
-

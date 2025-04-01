@@ -22,7 +22,7 @@ import {
     Paper,
     Stack,
     Chip,
-    Dialog, // Import Dialog
+    Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
@@ -31,25 +31,65 @@ import {
 import { LocalShipping, Payment, ShoppingCart, Help, Email, Phone, Home } from '@mui/icons-material';
 import Header from './Header';
 import Footer from './Footer';
-import { useState } from 'react'; // Import useState
+import { useState, useEffect } from 'react';
 
 function Checkout() {
     const { items = [] } = useLoaderData();
     const subtotal = items.reduce((total, item) => total + (item.itemId.price * item.quantity), 0);
-    const shippingFee = 5.99;
-    const total = subtotal + shippingFee;
+    
+    const [deliveryMode, setDeliveryMode] = useState('');
+    const [shippingFee, setShippingFee] = useState(0);
+    const [total, setTotal] = useState(subtotal);
+    const [addressComplete, setAddressComplete] = useState(false);
+    const [fullName, setFullName] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [street, setStreet] = useState('');
+    const [city, setCity] = useState('');
 
-    const navigate = useNavigate(); // Hook for navigation
-    const [open, setOpen] = useState(false); // State for dialog visibility
+    const navigate = useNavigate();
+    const [open, setOpen] = useState(false);
+
+    // Update shipping fee based on delivery mode
+    useEffect(() => {
+        if (deliveryMode === 'delivery') {
+            setShippingFee(50);
+        } else if (deliveryMode === 'pickup') {
+            setShippingFee(0);
+        }
+    }, [deliveryMode]);
+
+    // Update total when subtotal or shipping fee changes
+    useEffect(() => {
+        setTotal(subtotal + shippingFee);
+    }, [subtotal, shippingFee]);
+
+    // Check if address is complete
+    useEffect(() => {
+        setAddressComplete(
+            fullName !== '' && 
+            contactNumber !== '' && 
+            street !== '' && 
+            city !== '' && 
+            deliveryMode !== ''
+        );
+    }, [fullName, contactNumber, street, city, deliveryMode]);
 
     const handleClose = () => {
         setOpen(false);
-        navigate('/home'); // Redirect to /home
+        navigate('/home');
+    };
+
+    const handleCancel = () => {
+        navigate('/home');
     };
 
     const handleSubmit = (event) => {
-        //event.preventDefault(); //Removed prevent default
+        event.preventDefault();
         setOpen(true);
+    };
+
+    const handleDeliveryModeChange = (event) => {
+        setDeliveryMode(event.target.value);
     };
 
     return (
@@ -114,14 +154,22 @@ function Checkout() {
                                     <Typography variant="body1">Subtotal:</Typography>
                                     <Typography variant="body1">₱{subtotal.toFixed(2)}</Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                    <Typography variant="body1">Shipping:</Typography>
-                                    <Typography variant="body1">₱{shippingFee.toFixed(2)}</Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px dashed #ddd' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
-                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>₱{total.toFixed(2)}</Typography>
-                                </Box>
+                                
+                                {addressComplete && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="body1">Shipping:</Typography>
+                                        <Typography variant="body1">
+                                            {deliveryMode === 'pickup' ? 'Free' : `₱${shippingFee.toFixed(2)}`}
+                                        </Typography>
+                                    </Box>
+                                )}
+                                
+                                {addressComplete && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px dashed #ddd' }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>₱{total.toFixed(2)}</Typography>
+                                    </Box>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -143,6 +191,8 @@ function Checkout() {
                                                 label="Full Name"
                                                 variant="outlined"
                                                 sx={{ mb: 2 }}
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
@@ -155,6 +205,8 @@ function Checkout() {
                                                 type="tel"
                                                 variant="outlined"
                                                 sx={{ mb: 2 }}
+                                                value={contactNumber}
+                                                onChange={(e) => setContactNumber(e.target.value)}
                                             />
                                         </Grid>
                                         <Grid item xs={12}>
@@ -166,16 +218,8 @@ function Checkout() {
                                                 label="Street Address"
                                                 variant="outlined"
                                                 sx={{ mb: 2 }}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <TextField
-                                                fullWidth
-                                                id="apartment"
-                                                name="apartment"
-                                                label="Apartment, Floor, etc. (optional)"
-                                                variant="outlined"
-                                                sx={{ mb: 2 }}
+                                                value={street}
+                                                onChange={(e) => setStreet(e.target.value)}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
@@ -187,6 +231,8 @@ function Checkout() {
                                                 label="Town/City"
                                                 variant="outlined"
                                                 sx={{ mb: 2 }}
+                                                value={city}
+                                                onChange={(e) => setCity(e.target.value)}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
@@ -197,22 +243,13 @@ function Checkout() {
                                                     id="deliveryMode"
                                                     name="deliveryMode"
                                                     label="Mode of Delivery"
+                                                    value={deliveryMode}
+                                                    onChange={handleDeliveryModeChange}
                                                 >
                                                     <MenuItem value="pickup">Pickup (Free)</MenuItem>
-                                                    <MenuItem value="delivery">Delivery (+₱{shippingFee.toFixed(2)})</MenuItem>
+                                                    <MenuItem value="delivery">Delivery (₱50.00 fixed fee)</MenuItem>
                                                 </Select>
                                             </FormControl>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <TextField
-                                                fullWidth
-                                                id="notes"
-                                                name="notes"
-                                                label="Delivery Notes (optional)"
-                                                variant="outlined"
-                                                multiline
-                                                rows={3}
-                                            />
                                         </Grid>
                                     </Grid>
                                 </CardContent>
@@ -268,7 +305,20 @@ function Checkout() {
                                 </CardContent>
                             </Card>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={handleCancel}
+                                    sx={{
+                                        px: 4,
+                                        py: 1.5,
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
                                 <Button
                                     type="submit"
                                     variant="contained"

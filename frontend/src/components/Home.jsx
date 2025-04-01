@@ -14,8 +14,17 @@ import {
     Typography,
     Divider,
     Stack,
-    Chip
+    Chip,
+    TextField,
+    InputAdornment,
+    MenuItem,
+    FormControl,
+    Select,
+    IconButton
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CloseIcon from '@mui/icons-material/Close';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -68,12 +77,42 @@ function ItemCard({ item }) {
 
 export default function Home() {
     const items = useLoaderData();
-    const prelovedItems = items.filter(item => item.type === 'preloved');
-    const brandnewItems = items.filter(item => item.type === 'brandnew');
     const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState('preloved');
     const [user, setUser] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
+    const [priceRange, setPriceRange] = useState('all');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    
+    const categories = ['Electronics', 'Kids\' Costumes', 'Home Decor', 'Clothing', 'Furniture', 'General'];
+
+    const filterItems = (items) => {
+        return items.filter(item => {
+            // Filter by search query
+            const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                 (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()));
+            
+            // Filter by category
+            const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+            
+            // Filter by price range
+            let matchesPrice = true;
+            if (priceRange === 'under1000') {
+                matchesPrice = item.price < 1000;
+            } else if (priceRange === '1000to5000') {
+                matchesPrice = item.price >= 1000 && item.price <= 5000;
+            } else if (priceRange === 'over5000') {
+                matchesPrice = item.price > 5000;
+            }
+            
+            return matchesSearch && matchesCategory && matchesPrice;
+        });
+    };
+
+    const filteredPrelovedItems = filterItems(items.filter(item => item.type === 'preloved'));
+    const filteredBrandnewItems = filterItems(items.filter(item => item.type === 'brandnew'));
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -92,6 +131,12 @@ export default function Home() {
         setActiveTab(newValue);
     };
 
+    const clearFilters = () => {
+        setSearchQuery('');
+        setPriceRange('all');
+        setSelectedCategory('all');
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
@@ -108,19 +153,10 @@ export default function Home() {
                                 Discover amazing deals on pre-loved items and brand new products.
                                 Find what you need at prices you'll love.
                             </Typography>
-                            <Button
-                                variant="contained"
-                                size="large"
-                                sx={{ mt: 2 }}
-                                component={Link}
-                                to="/home"
-                            >
-                                Browse All Items
-                            </Button>
                         </Paper>
 
                         <Paper sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
                                 <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
                                     Featured Items
                                 </Typography>
@@ -135,24 +171,151 @@ export default function Home() {
                                 </Tabs>
                             </Box>
 
-                            {activeTab === 'preloved' && (
-                                <Grid container spacing={3}>
-                                    {prelovedItems.map(item => (
-                                        <Grid item key={item.id} xs={12} sm={6}>
-                                            <ItemCard item={item} />
+                            <Box sx={{ mb: 3 }}>
+                                <TextField
+                                    fullWidth
+                                    placeholder="Search items by name or category..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    sx={{ mb: 2 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                        endAdornment: searchQuery && (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={() => setSearchQuery('')}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                />
+                                
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                    <Button 
+                                        startIcon={<FilterListIcon />} 
+                                        onClick={() => setShowFilters(!showFilters)}
+                                        variant="outlined"
+                                    >
+                                        {showFilters ? 'Hide Filters' : 'Show Filters'}
+                                    </Button>
+                                    
+                                    {(searchQuery || priceRange !== 'all' || selectedCategory !== 'all') && (
+                                        <Button 
+                                            variant="text"
+                                            onClick={clearFilters}
+                                        >
+                                            Clear All Filters
+                                        </Button>
+                                    )}
+                                </Box>
+                                
+                                {showFilters && (
+                                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                                        <Grid item xs={12} sm={6}>
+                                            <FormControl fullWidth size="small">
+                                                <Typography variant="body2" sx={{ mb: 1 }}>Category</Typography>
+                                                <Select
+                                                    value={selectedCategory}
+                                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                                    displayEmpty
+                                                >
+                                                    <MenuItem value="all">All Categories</MenuItem>
+                                                    {categories.map(category => (
+                                                        <MenuItem key={category} value={category}>{category}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
                                         </Grid>
-                                    ))}
-                                </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <FormControl fullWidth size="small">
+                                                <Typography variant="body2" sx={{ mb: 1 }}>Price Range</Typography>
+                                                <Select
+                                                    value={priceRange}
+                                                    onChange={(e) => setPriceRange(e.target.value)}
+                                                    displayEmpty
+                                                >
+                                                    <MenuItem value="all">All Prices</MenuItem>
+                                                    <MenuItem value="under1000">Under ₱1,000</MenuItem>
+                                                    <MenuItem value="1000to5000">₱1,000 - ₱5,000</MenuItem>
+                                                    <MenuItem value="over5000">Over ₱5,000</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                )}
+                                
+                                {(searchQuery || priceRange !== 'all' || selectedCategory !== 'all') && (
+                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                                        {searchQuery && (
+                                            <Chip 
+                                                label={`Search: "${searchQuery}"`} 
+                                                onDelete={() => setSearchQuery('')}
+                                                color="primary"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                        {selectedCategory !== 'all' && (
+                                            <Chip 
+                                                label={`Category: ${selectedCategory}`} 
+                                                onDelete={() => setSelectedCategory('all')}
+                                                color="primary"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                        {priceRange !== 'all' && (
+                                            <Chip 
+                                                label={`Price: ${priceRange === 'under1000' ? 'Under ₱1,000' : priceRange === '1000to5000' ? '₱1,000 - ₱5,000' : 'Over ₱5,000'}`} 
+                                                onDelete={() => setPriceRange('all')}
+                                                color="primary"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    </Box>
+                                )}
+                            </Box>
+
+                            {activeTab === 'preloved' && (
+                                <>
+                                    {filteredPrelovedItems.length > 0 ? (
+                                        <Grid container spacing={3}>
+                                            {filteredPrelovedItems.map(item => (
+                                                <Grid item key={item.id} xs={12} sm={6}>
+                                                    <ItemCard item={item} />
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    ) : (
+                                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                                            <Typography variant="h6" color="text.secondary">
+                                                No pre-loved items match your search
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </>
                             )}
 
                             {activeTab === 'brandnew' && (
-                                <Grid container spacing={3}>
-                                    {brandnewItems.map(item => (
-                                        <Grid item key={item.id} xs={12} sm={6}>
-                                            <ItemCard item={item} />
+                                <>
+                                    {filteredBrandnewItems.length > 0 ? (
+                                        <Grid container spacing={3}>
+                                            {filteredBrandnewItems.map(item => (
+                                                <Grid item key={item.id} xs={12} sm={6}>
+                                                    <ItemCard item={item} />
+                                                </Grid>
+                                            ))}
                                         </Grid>
-                                    ))}
-                                </Grid>
+                                    ) : (
+                                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                                            <Typography variant="h6" color="text.secondary">
+                                                No brand new items match your search
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </>
                             )}
                         </Paper>
                     </Grid>
@@ -175,10 +338,15 @@ export default function Home() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             transition: '0.3s',
+                                            cursor: 'pointer',
                                             '&:hover': {
                                                 backgroundColor: 'grey.100',
                                                 transform: 'translateX(4px)'
                                             }
+                                        }}
+                                        onClick={() => {
+                                            setSelectedCategory(category);
+                                            setShowFilters(true);
                                         }}
                                     >
                                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -194,7 +362,7 @@ export default function Home() {
                                 Recently Viewed
                             </Typography>
                             <Grid container spacing={2}>
-                                {[...prelovedItems, ...brandnewItems].slice(0, 2).map(item => (
+                                {[...items.filter(item => item.type === 'preloved'), ...items.filter(item => item.type === 'brandnew')].slice(0, 2).map(item => (
                                     <Grid item key={item.id} xs={12}>
                                         <ItemCard item={item} />
                                     </Grid>
@@ -219,4 +387,3 @@ export default function Home() {
         </Box>
     );
 }
-
