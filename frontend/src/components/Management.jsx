@@ -295,7 +295,7 @@ export default function Management() {
             Merca Finds
           </Typography>
           <Typography variant="subtitle2" color="text.secondary">
-            {user?.role || 'Staff'} Panel
+            {(user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Staff') + ' Panel'}
           </Typography>
         </Box>
 
@@ -483,10 +483,10 @@ export default function Management() {
             
             <Box sx={{ textAlign: 'right' }}>
               <Typography variant="subtitle1" fontWeight={500}>
-                {user?.fullName || user?.username || user?.role}
+                {user?.fullName || user?.username || (user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {user?.role || 'Staff'}
+                {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Staff'}
               </Typography>
             </Box>
           </Box>
