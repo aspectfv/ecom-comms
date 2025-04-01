@@ -103,7 +103,7 @@ export default function AdminOrders() {
             order.deliveryDetails.fullName,
             new Date(order.createdAt).toLocaleDateString(),
             `₱${order.total.toFixed(2)}`,
-            order.status.toUpperCase()
+            order.status
         ]);
 
         const csvContent = [
@@ -212,9 +212,7 @@ export default function AdminOrders() {
                                                     display: 'inline-block'
                                                 }}
                                             >
-                                                {order.status === 'out_for_delivery' ? 'OUT FOR DELIVERY' : 
-                                                 order.status === 'ready_for_pickup' ? 'READY FOR PICKUP' : 
-                                                 order.status.toUpperCase()}
+                                                {order.status.replace(/_/g, ' ').toUpperCase()}
                                             </Typography>
                                         </TableCell>
                                         <TableCell>
