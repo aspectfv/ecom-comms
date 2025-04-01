@@ -18,6 +18,7 @@ import ViewOrderDetails from './components/ViewOrderDetails';
 import AdminOrders from './components/AdminOrders';
 import ViewItemDetails from './components/ViewItemDetails';
 import EditItemListing from './components/EditItemListing';
+import Sales from './components/Sales';
 
 // Loaders and Actions
 import { homeLoader } from './routes/homeRoutes';
@@ -32,6 +33,7 @@ import { addNewListingAction } from './routes/addNewListingRoutes';
 import { viewOrderDetailsLoader, viewOrderDetailsAction } from './routes/ViewOrderDetailsRoutes';
 import { viewItemDetailsLoader } from './routes/viewItemDetailsRoutes';
 import { editItemListingLoader, editItemListingAction } from './routes/editItemListingRoutes';
+import { salesLoader } from './routes/salesRoutes';
 
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -153,6 +155,11 @@ const router = createBrowserRouter([
                 path: 'item/:id',
                 element: <ViewItemDetails />,
                 loader: viewItemDetailsLoader
+            },
+            {
+                path: 'sales',
+                element: <Sales />,
+                loader: salesLoader
             },
         ],
     },

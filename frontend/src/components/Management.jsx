@@ -28,7 +28,8 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon,
   Notifications as NotificationsIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  BarChart as SalesIcon
 } from '@mui/icons-material';
 import { getAllOrders } from '../services/api';
 
@@ -60,6 +61,7 @@ export default function Management() {
   // Determine if we're on the inventory or orders page
   const isInventoryPage = location.pathname.includes('/inventory');
   const isOrdersPage = location.pathname.includes('/orders');
+  const isSalesPage = location.pathname.includes('/sales');
   
   // Reset search input when changing pages
   useEffect(() => {
@@ -352,6 +354,30 @@ export default function Management() {
               </ListItemButton>
             </ListItem>
           )}
+
+          {user && user.role === 'admin' && (
+            <ListItem disablePadding>
+              <ListItemButton 
+                component={Link} 
+                to="/admin/sales"
+                selected={isSalesPage}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    borderRight: '2px solid #ff0000'
+                  },
+                  '&.Mui-selected:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.08)'
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <SalesIcon />
+                </ListItemIcon>
+                <ListItemText primary="Sales" />
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
 
         <Box sx={{ p: 2 }}>
@@ -392,39 +418,45 @@ export default function Management() {
             mb: 2
           }}
         >
-          <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              variant="outlined"
-              size="small"
-              placeholder={isInventoryPage ? "Looking for an item?" : "Search orders..."}
-              value={searchInput}
-              onChange={handleSearchInputChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ minWidth: 300 }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-            >
-              Search
-            </Button>
-            {searchParams.size > 0 && (
+          {/* Only show search form when NOT on the sales page */}
+          {!isSalesPage ? (
+            <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder={isInventoryPage ? "Looking for an item?" : "Search orders..."}
+                value={searchInput}
+                onChange={handleSearchInputChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ minWidth: 300 }}
+              />
               <Button
-                onClick={handleClearFilters}
-                startIcon={<ClearIcon />}
-                color="secondary"
+                type="submit"
+                variant="contained"
+                color="primary"
               >
-                Clear Filters
+                Search
               </Button>
-            )}
-          </Box>
+              {searchParams.size > 0 && (
+                <Button
+                  onClick={handleClearFilters}
+                  startIcon={<ClearIcon />}
+                  color="secondary"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </Box>
+          ) : (
+            /* Just render an empty div to maintain the flex layout */
+            <div></div> 
+          )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {user && user.role === 'admin' && (
