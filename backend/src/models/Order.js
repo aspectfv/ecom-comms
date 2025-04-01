@@ -28,11 +28,12 @@ const OrderSchema = new Schema({
   total: { type: Number, required: true },
   status: { 
     type: String, 
-    enum: ['pending', 'out_for_delivery', 'completed', 'cancelled'], 
+    enum: ['pending', 'out_for_delivery', 'ready_for_pickup', 'completed', 'cancelled'], 
     default: 'pending' 
   },
   createdAt: { type: Date, default: Date.now },
   outForDeliveryAt: { type: Date },
+  readyForPickupAt: { type: Date },
   completedAt: { type: Date }
 }, {
     toJSON: {
@@ -45,7 +46,7 @@ const OrderSchema = new Schema({
     },
 })
 
-// Update pre-save middleware to handle outForDeliveryAt date
+// Update pre-save middleware to handle status changes
 OrderSchema.pre('save', function(next) {
     // Set completedAt date when status changes to 'completed'
     if (this.isModified('status') && this.status === 'completed' && !this.completedAt) {
@@ -66,9 +67,29 @@ OrderSchema.pre('save', function(next) {
         }
     }
     
+    // Block ready_for_pickup status for delivery orders
+    if (this.isModified('status') && this.status === 'ready_for_pickup') {
+        // Check if this is a delivery order
+        if (this.deliveryDetails.mode === 'delivery') {
+            const error = new Error('Delivery orders cannot be marked as ready for pickup');
+            return next(error);
+        }
+        
+        // For pickup orders, set readyForPickupAt if not already set
+        if (!this.readyForPickupAt) {
+            this.readyForPickupAt = new Date();
+        }
+    }
+    
     // Prevent setting outForDeliveryAt for pickup orders
     if (this.isModified('outForDeliveryAt') && this.deliveryDetails.mode === 'pickup') {
         const error = new Error('Cannot set outForDeliveryAt for pickup orders');
+        return next(error);
+    }
+    
+    // Prevent setting readyForPickupAt for delivery orders
+    if (this.isModified('readyForPickupAt') && this.deliveryDetails.mode === 'delivery') {
+        const error = new Error('Cannot set readyForPickupAt for delivery orders');
         return next(error);
     }
     
@@ -106,6 +127,28 @@ OrderSchema.pre('findOneAndUpdate', async function(next) {
         }
     }
     
+    // If trying to update to ready_for_pickup status
+    if (update.status === 'ready_for_pickup') {
+        try {
+            // Get the order document to check delivery mode
+            const orderId = this.getQuery()._id;
+            const order = await mongoose.model('Order').findById(orderId);
+            
+            // Block ready_for_pickup status for delivery orders
+            if (order && order.deliveryDetails.mode === 'delivery') {
+                const error = new Error('Delivery orders cannot be marked as ready for pickup');
+                return next(error);
+            }
+            
+            // For pickup orders, set readyForPickupAt if not already set
+            if (!update.readyForPickupAt) {
+                update.readyForPickupAt = new Date();
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    
     // If trying to update outForDeliveryAt field
     if (update.outForDeliveryAt !== undefined) {
         try {
@@ -116,6 +159,23 @@ OrderSchema.pre('findOneAndUpdate', async function(next) {
             // Block setting outForDeliveryAt for pickup orders
             if (order && order.deliveryDetails.mode === 'pickup') {
                 const error = new Error('Cannot set outForDeliveryAt for pickup orders');
+                return next(error);
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    
+    // If trying to update readyForPickupAt field
+    if (update.readyForPickupAt !== undefined) {
+        try {
+            // Get the order document to check delivery mode
+            const orderId = this.getQuery()._id;
+            const order = await mongoose.model('Order').findById(orderId);
+            
+            // Block setting readyForPickupAt for delivery orders
+            if (order && order.deliveryDetails.mode === 'delivery') {
+                const error = new Error('Cannot set readyForPickupAt for delivery orders');
                 return next(error);
             }
         } catch (err) {

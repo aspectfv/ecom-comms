@@ -110,9 +110,21 @@ export default function Header() {
                             setNotifications(prev => [newNotification, ...prev]);
                             setUnreadCount(prev => prev + 1);
                             hasNewNotifications = true;
-                        }
-                        // Add check for completed status
-                        else if (currentStatus === 'completed') {
+                        } else if (currentStatus === 'ready_for_pickup') {
+                            // Create ready for pickup notification
+                            const newNotification = {
+                                id: `order-${orderId}-ready-${Date.now()}`,
+                                title: 'Order Ready for Pickup',
+                                message: `Order #${order.orderNumber} is now ready for pickup!`,
+                                time: new Date(),
+                                orderId: orderId,
+                                read: false
+                            };
+                            
+                            setNotifications(prev => [newNotification, ...prev]);
+                            setUnreadCount(prev => prev + 1);
+                            hasNewNotifications = true;
+                        } else if (currentStatus === 'completed') {
                             // Create completion notification
                             const newNotification = {
                                 id: `order-${orderId}-completed-${Date.now()}`,

@@ -16,20 +16,22 @@ export const viewOrderDetailsAction = async ({ request, params }) => {
     const action = formData.get('action');
     const user = JSON.parse(localStorage.getItem('user'));
     
-    if (action === 'markAsOutForDelivery') {
+    // Map action types to properly formatted status values
+    const statusMap = {
+        'markAsOutForDelivery': 'out_for_delivery',
+        'markAsReadyForPickup': 'ready_for_pickup',
+        'markAsCompleted': 'completed',
+        'markAsCancelled': 'cancelled'
+    };
+    
+    const status = statusMap[action];
+    
+    if (status) {
         try {
-            await updateOrder(params.id, { status: 'out_for_delivery' });
+            await updateOrder(params.id, { status });
             return redirect(`/${user.role}/order/${params.id}`);
         } catch (error) {
-            console.error('Error marking order as out for delivery:', error);
-            return { error: 'Failed to update order status' };
-        }
-    } else if (action === 'markAsCompleted') {
-        try {
-            await updateOrder(params.id, { status: 'completed' });
-            return redirect(`/${user.role}/order/${params.id}`);
-        } catch (error) {
-            console.error('Error marking order as completed:', error);
+            console.error(`Error updating order status to ${status}:`, error);
             return { error: 'Failed to update order status' };
         }
     }

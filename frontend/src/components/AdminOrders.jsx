@@ -69,7 +69,14 @@ export default function AdminOrders() {
     const handleStatusChange = (e) => {
         const value = e.target.value === 'All Statuses' ? '' : e.target.value;
         setSelectedStatus(value);
-        updateSearchParams('status', value.toLowerCase());
+        
+        // Convert UI status to database format (replace spaces with underscores)
+        let statusValue = '';
+        if (value) {
+            statusValue = value.toLowerCase().replace(/ /g, '_');
+        }
+        
+        updateSearchParams('status', statusValue);
     };
 
     const handlePeriodChange = (e) => {
@@ -146,6 +153,7 @@ export default function AdminOrders() {
                                 <MenuItem value="All Statuses">All Statuses</MenuItem>
                                 <MenuItem value="Pending">Pending</MenuItem>
                                 <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
+                                <MenuItem value="Ready for Pickup">Ready for Pickup</MenuItem>
                                 <MenuItem value="Completed">Completed</MenuItem>
                             </Select>
                         </FormControl>
@@ -196,7 +204,7 @@ export default function AdminOrders() {
                                                 fontWeight={500}
                                                 color={
                                                     order.status === 'completed' ? 'success.main' : 
-                                                    order.status === 'out_for_delivery' ? 'info.main' : 
+                                                    order.status === 'out_for_delivery' || order.status === 'ready_for_pickup' ? 'info.main' : 
                                                     'warning.main'
                                                 }
                                                 sx={{
@@ -204,7 +212,9 @@ export default function AdminOrders() {
                                                     display: 'inline-block'
                                                 }}
                                             >
-                                                {order.status === 'out_for_delivery' ? 'OUT FOR DELIVERY' : order.status.toUpperCase()}
+                                                {order.status === 'out_for_delivery' ? 'OUT FOR DELIVERY' : 
+                                                 order.status === 'ready_for_pickup' ? 'READY FOR PICKUP' : 
+                                                 order.status.toUpperCase()}
                                             </Typography>
                                         </TableCell>
                                         <TableCell>

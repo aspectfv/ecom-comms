@@ -20,7 +20,8 @@ import {
 import {
     ArrowBack as ArrowBackIcon,
     CheckCircle as CheckCircleIcon,
-    LocalShipping as LocalShippingIcon
+    LocalShipping as LocalShippingIcon,
+    NotificationsActive as NotificationsActiveIcon
 } from '@mui/icons-material';
 
 export default function ViewOrderDetails() {
@@ -68,10 +69,10 @@ export default function ViewOrderDetails() {
 
                     <Box textAlign="right">
                         <Chip
-                            label={order.status.replace('_', ' ').toUpperCase()}
+                            label={order.status.replace(/_/g, ' ').toUpperCase()}
                             color={
                                 order.status === 'completed' ? 'success' : 
-                                order.status === 'out_for_delivery' ? 'info' : 
+                                order.status === 'out_for_delivery' || order.status === 'ready_for_pickup' ? 'info' : 
                                 'warning'
                             }
                             sx={{
@@ -99,6 +100,21 @@ export default function ViewOrderDetails() {
                                     </Form>
                                 )}
 
+                                {/* Ready for Pickup button - only show for pickup mode */}
+                                {order.deliveryDetails.mode === 'pickup' && (
+                                    <Form method="post">
+                                        <input type="hidden" name="action" value="markAsReadyForPickup" />
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<NotificationsActiveIcon />}
+                                        >
+                                            Mark as Ready for Pickup
+                                        </Button>
+                                    </Form>
+                                )}
+
                                 {/* Mark as Completed button - show for all orders */}
                                 <Form method="post">
                                     <input type="hidden" name="action" value="markAsCompleted" />
@@ -114,8 +130,8 @@ export default function ViewOrderDetails() {
                             </Box>
                         )}
 
-                        {/* Add this button for out_for_delivery status */}
-                        {order.status === 'out_for_delivery' && user.role === 'admin' && (
+                        {/* For out_for_delivery and ready_for_pickup orders */}
+                        {(order.status === 'out_for_delivery' || order.status === 'ready_for_pickup') && user.role === 'admin' && (
                             <Box mt={2}>
                                 <Form method="post">
                                     <input type="hidden" name="action" value="markAsCompleted" />
@@ -167,6 +183,11 @@ export default function ViewOrderDetails() {
                             {order.outForDeliveryAt && (
                                 <Typography variant="body1">
                                     <strong>Out for Delivery Date:</strong> {formatDate(order.outForDeliveryAt)}
+                                </Typography>
+                            )}
+                            {order.readyForPickupAt && (
+                                <Typography variant="body1">
+                                    <strong>Ready for Pickup Date:</strong> {formatDate(order.readyForPickupAt)}
                                 </Typography>
                             )}
                             {order.completedAt && (
