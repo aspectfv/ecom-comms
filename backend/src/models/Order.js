@@ -20,9 +20,7 @@ const OrderSchema = new Schema({
   paymentMethod: { type: String, enum: ['e-wallet', 'bank-transfer', 'cash'], required: true },
   paymentDetails: {
     proofImage: { type: String },
-    referenceNumber: { type: String },
     paymentDate: { type: Date },
-    verified: { type: Boolean, default: false }
   },
   subtotal: { type: Number, required: true },
   total: { type: Number, required: true },
