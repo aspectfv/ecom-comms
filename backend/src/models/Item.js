@@ -25,6 +25,11 @@ const ItemSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid category!`
     }
   },
+  status: {
+    type: String,
+    enum: ['available', 'ordered', 'sold'],
+    default: 'available'
+  },
   description: { type: String },
   condition: { type: String },
   images: [{ type: String }],
@@ -88,6 +93,58 @@ ItemSchema.pre('save', async function(next) {
     next();
   } catch (error) {
     next(error);
+  }
+});
+
+// Post-save middleware to delete item when marked as sold
+ItemSchema.post('save', async function(doc, next) {
+  try {
+    // Only proceed if the status is 'sold'
+    if (doc.status === 'sold') {
+      await mongoose.model('Item').deleteOne({ _id: doc._id });
+      console.log(`Item ${doc.itemCode} has been deleted after being marked as sold.`);
+    }
+    next();
+  } catch (error) {
+    console.error(`Error in post-save hook for item ${doc.itemCode}:`, error);
+    next(error);
+  }
+});
+
+// Also handle status changes in findOneAndUpdate operations
+ItemSchema.pre('findOneAndUpdate', async function(next) {
+  try {
+    const update = this.getUpdate();
+    
+    // Check if status is being updated to 'sold'
+    if (update && update.status === 'sold') {
+      // Get the document ID that's being updated
+      const docId = this.getQuery()._id;
+      
+      // Mark for deletion after the update completes
+      this._deleteAfterUpdate = docId;
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Post-update middleware to delete item when marked as sold via update
+ItemSchema.post('findOneAndUpdate', async function(result) {
+  try {
+    // Check if we marked this document for deletion
+    if (this._deleteAfterUpdate) {
+      const docId = this._deleteAfterUpdate;
+      
+      // If the update was successful and the item is now marked as sold
+      if (result && result.status === 'sold') {
+        await mongoose.model('Item').deleteOne({ _id: docId });
+        console.log(`Item ${result.itemCode} has been deleted after being marked as sold.`);
+      }
+    }
+  } catch (error) {
+    console.error('Error in post-findOneAndUpdate hook:', error);
   }
 });
 

@@ -12,7 +12,8 @@ import {
     Divider,
     Chip,
     Snackbar,
-    Alert
+    Alert,
+    Paper
 } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
@@ -22,6 +23,9 @@ export default function ItemDetail() {
     const [user, setUser] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    
+    // Check if the item is available for purchase
+    const isAvailable = !item.status || item.status === 'available';
 
     const handleNextImage = () => {
         setCurrentImageIndex((prevIndex) =>
@@ -43,8 +47,11 @@ export default function ItemDetail() {
     }, []);
 
     const handleAddToCart = (e) => {
-        // Prevent default form submission if you want to handle it with JavaScript
-        // e.preventDefault();
+        // Prevent form submission if item is not available
+        if (!isAvailable) {
+            e.preventDefault();
+            return;
+        }
         setOpenSnackbar(true);
     };
 
@@ -84,7 +91,11 @@ export default function ItemDetail() {
                                             height: 'auto',
                                             borderRadius: 2,
                                             aspectRatio: '1/1',
-                                            objectFit: 'contain'
+                                            objectFit: 'contain',
+                                            ...(item.status === 'sold' && {
+                                                opacity: 0.7,
+                                                filter: 'grayscale(50%)'
+                                            })
                                         }}
                                     />
                                     {item.images.length > 1 && (
@@ -170,9 +181,20 @@ export default function ItemDetail() {
                     {/* Details Section */}
                     <Grid item xs={12} md={6}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Typography variant="h3" component="h1" gutterBottom>
-                                {item.name}
-                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="h3" component="h1" gutterBottom>
+                                    {item.name}
+                                </Typography>
+                                
+                                {/* Item Status Chip */}
+                                {item.status && item.status !== 'available' && (
+                                    <Chip 
+                                        label={item.status === 'ordered' ? 'Currently Ordered' : 'Sold Out'}
+                                        color={item.status === 'ordered' ? 'warning' : 'error'}
+                                        sx={{ fontWeight: 'bold' }}
+                                    />
+                                )}
+                            </Box>
 
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 {item.category && (
@@ -215,6 +237,25 @@ export default function ItemDetail() {
                                 </Box>
                             )}
 
+                            {/* Display availability message */}
+                            {!isAvailable && (
+                                <Paper 
+                                    elevation={0} 
+                                    sx={{ 
+                                        p: 2, 
+                                        bgcolor: item.status === 'ordered' ? 'warning.light' : 'error.light',
+                                        borderRadius: 1,
+                                        mb: 2
+                                    }}
+                                >
+                                    <Typography variant="body1" fontWeight="medium" color={item.status === 'ordered' ? 'warning.dark' : 'error.dark'}>
+                                        {item.status === 'ordered' 
+                                            ? "This item is currently not available."
+                                            : "This item has been sold and is no longer available."}
+                                    </Typography>
+                                </Paper>
+                            )}
+
                             <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                                 <Form method="post">
                                     <input type="hidden" name="actionType" value="buyNow" />
@@ -222,11 +263,16 @@ export default function ItemDetail() {
                                         type="submit"
                                         variant="contained"
                                         size="large"
+                                        disabled={!isAvailable}
                                         sx={{
                                             backgroundColor: 'primary.main',
                                             '&:hover': {
                                                 backgroundColor: 'primary.main',
                                                 opacity: 0.9
+                                            },
+                                            '&.Mui-disabled': {
+                                                backgroundColor: 'action.disabledBackground',
+                                                color: 'action.disabled'
                                             }
                                         }}
                                     >
@@ -239,12 +285,16 @@ export default function ItemDetail() {
                                         type="submit"
                                         variant="outlined"
                                         size="large"
+                                        disabled={!isAvailable}
                                         sx={{
                                             borderColor: 'primary.main',
                                             color: 'primary.main',
                                             '&:hover': {
                                                 borderColor: 'primary.main',
                                                 backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                            },
+                                            '&.Mui-disabled': {
+                                                borderColor: 'action.disabled'
                                             }
                                         }}
                                     >

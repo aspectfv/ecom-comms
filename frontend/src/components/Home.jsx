@@ -76,8 +76,13 @@ function ItemCard({ item }) {
 }
 
 export default function Home() {
-    const items = useLoaderData();
+    const allItems = useLoaderData();
     const navigate = useNavigate();
+
+    // Filter available items (items with status 'available' or no status field)
+    const items = allItems.filter(item => 
+        !item.status || item.status === 'available'
+    );
 
     const [activeTab, setActiveTab] = useState('preloved');
     const [user, setUser] = useState(null);
