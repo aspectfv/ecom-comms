@@ -8,7 +8,6 @@ const uploadController = require('../controllers/uploadController');
 router.post(
     '/image', 
     authenticate, 
-    authorize(['admin', 'staff']), 
     upload.single('image'), 
     uploadController.uploadImage
 );
@@ -17,7 +16,6 @@ router.post(
 router.post(
     '/images', 
     authenticate, 
-    authorize(['admin', 'staff']), 
     upload.array('images', 5), 
     uploadController.uploadImages
 );

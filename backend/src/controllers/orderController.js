@@ -23,7 +23,8 @@ exports.createOrder = async (req, res) => {
     try {
         const {
             deliveryDetails,
-            paymentMethod
+            paymentMethod,
+            paymentDetails
         } = req.body;
 
         // Get user's cart
@@ -42,9 +43,9 @@ exports.createOrder = async (req, res) => {
         const subtotal = orderItems.reduce((total, item) => total + (item.price), 0);
         const total = subtotal; // Add shipping costs or taxes if needed
 
-        // Create order
-        const order = new Order({
-            orderNumber: generateOrderNumber(), // Use the utility function
+        // Create order object with all required fields
+        const orderData = {
+            orderNumber: generateOrderNumber(),
             userId: req.user.id,
             items: orderItems,
             deliveryDetails,
@@ -53,8 +54,15 @@ exports.createOrder = async (req, res) => {
             total,
             status: 'pending',
             createdAt: Date.now()
-        });
+        };
 
+        // Add payment details if they exist
+        if (paymentDetails) {
+            orderData.paymentDetails = paymentDetails;
+        }
+
+        // Create and save the order
+        const order = new Order(orderData);
         await order.save();
 
         // Clear user's cart

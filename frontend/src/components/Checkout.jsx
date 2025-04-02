@@ -1,4 +1,4 @@
-import { useLoaderData, Form, useNavigate } from 'react-router-dom';
+import { useLoaderData, Form, useNavigate, useSubmit } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -27,11 +27,13 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Alert,
+    FormHelperText,
 } from '@mui/material';
-import { LocalShipping, Payment, ShoppingCart, Help, Email, Phone, Home } from '@mui/icons-material';
+import { LocalShipping, Payment, ShoppingCart, Help, Email, Phone, Home, CloudUpload } from '@mui/icons-material';
 import Header from './Header';
 import Footer from './Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function Checkout() {
     const { items = [] } = useLoaderData();
@@ -45,6 +47,15 @@ function Checkout() {
     const [contactNumber, setContactNumber] = useState('');
     const [street, setStreet] = useState('');
     const [city, setCity] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [paymentProof, setPaymentProof] = useState(null);
+    const [paymentProofPreview, setPaymentProofPreview] = useState('');
+    const [uploadError, setUploadError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const fileInputRef = useRef(null);
+    const formRef = useRef(null);
+    const submit = useSubmit();
 
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -74,6 +85,17 @@ function Checkout() {
         );
     }, [fullName, contactNumber, street, city, deliveryMode]);
 
+    // Clear error message after 5 seconds
+    useEffect(() => {
+        if (uploadError) {
+            const timer = setTimeout(() => {
+                setUploadError('');
+            }, 5000);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [uploadError]);
+
     const handleClose = () => {
         setOpen(false);
         navigate('/home');
@@ -84,11 +106,92 @@ function Checkout() {
     };
 
     const handleSubmit = (event) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        
+        // If e-wallet is selected but no proof is uploaded, show error
+        if (paymentMethod === 'e-wallet' && !paymentProof) {
+            setUploadError('Please upload proof of payment for E-wallet transactions');
+            setIsSubmitting(false);
+            return;
+        }
+        
+        // Create a new FormData object from the form
+        const formData = new FormData(formRef.current);
+        
+        // Manually add the payment proof file if it exists
+        if (paymentProof && paymentMethod === 'e-wallet') {
+            formData.append('paymentProof', paymentProof);
+        }
+        
+        // Submit the form with the FormData
+        submit(formData, {
+            method: 'post',
+            encType: 'multipart/form-data',
+        });
+        
+        // Show success dialog after form submission
         setOpen(true);
     };
 
     const handleDeliveryModeChange = (event) => {
         setDeliveryMode(event.target.value);
+    };
+
+    const handlePaymentMethodChange = (event) => {
+        setPaymentMethod(event.target.value);
+        
+        // Clear payment proof when switching away from e-wallet
+        if (event.target.value !== 'e-wallet') {
+            setPaymentProof(null);
+            setPaymentProofPreview('');
+            setUploadError('');
+        }
+    };
+
+    const handlePaymentProofChange = (event) => {
+        const file = event.target.files[0];
+        
+        if (!file) {
+            return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setUploadError('Please upload only image files (.jpg, .jpeg, .png, etc.)');
+            return;
+        }
+        
+        // Validate file size (limit to 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setUploadError('Image file is too large. Please upload files smaller than 5MB');
+            return;
+        }
+        
+        // Store the file object
+        setPaymentProof(file);
+        
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPaymentProofPreview(reader.result);
+        };
+        reader.onerror = () => {
+            setUploadError('Failed to read the image file. Please try again.');
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleRemoveProof = () => {
+        setPaymentProof(null);
+        setPaymentProofPreview('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     return (
@@ -172,7 +275,7 @@ function Checkout() {
                             </CardContent>
                         </Card>
 
-                        <Form method="post" onSubmit={handleSubmit}>
+                        <Form method="post" ref={formRef} encType="multipart/form-data" onSubmit={handleSubmit}>
                             <Card sx={{ mb: 4, boxShadow: 3 }}>
                                 <CardContent>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -262,7 +365,11 @@ function Checkout() {
                                     </Box>
 
                                     <FormControl component="fieldset" fullWidth>
-                                        <RadioGroup name="paymentMethod">
+                                        <RadioGroup 
+                                            name="paymentMethod" 
+                                            value={paymentMethod}
+                                            onChange={handlePaymentMethodChange}
+                                        >
                                             <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
                                                 <FormControlLabel
                                                     value="e-wallet"
@@ -274,6 +381,73 @@ function Checkout() {
                                                         </Box>
                                                     }
                                                 />
+                                                {paymentMethod === 'e-wallet' && (
+                                                    <Box sx={{ mt: 2, ml: 4 }}>
+                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                            Please upload a screenshot of your payment receipt
+                                                        </Typography>
+                                                        
+                                                        {/* Error message */}
+                                                        {uploadError && (
+                                                            <Alert severity="warning" sx={{ mb: 2 }}>
+                                                                {uploadError}
+                                                            </Alert>
+                                                        )}
+                                                        
+                                                        <input
+                                                            type="file"
+                                                            id="paymentProof"
+                                                            name="paymentProof"
+                                                            accept="image/*"
+                                                            onChange={handlePaymentProofChange}
+                                                            style={{ display: 'none' }}
+                                                            ref={fileInputRef}
+                                                        />
+                                                        
+                                                        {!paymentProofPreview ? (
+                                                            <Button
+                                                                variant="outlined"
+                                                                startIcon={<CloudUpload />}
+                                                                onClick={triggerFileInput}
+                                                                fullWidth
+                                                                sx={{ mt: 1 }}
+                                                                disabled={isSubmitting}
+                                                            >
+                                                                Upload Payment Receipt
+                                                            </Button>
+                                                        ) : (
+                                                            <Box sx={{ mt: 2, position: 'relative' }}>
+                                                                <img 
+                                                                    src={paymentProofPreview}
+                                                                    alt="Payment proof"
+                                                                    style={{ 
+                                                                        maxWidth: '100%', 
+                                                                        maxHeight: '200px',
+                                                                        borderRadius: '4px'
+                                                                    }}
+                                                                />
+                                                                <Button
+                                                                    variant="contained"
+                                                                    color="error"
+                                                                    size="small"
+                                                                    onClick={handleRemoveProof}
+                                                                    sx={{ 
+                                                                        position: 'absolute',
+                                                                        top: 8,
+                                                                        right: 8,
+                                                                        minWidth: 'auto'
+                                                                    }}
+                                                                    disabled={isSubmitting}
+                                                                >
+                                                                    ✕
+                                                                </Button>
+                                                            </Box>
+                                                        )}
+                                                        <FormHelperText>
+                                                            Image file should be less than 5MB (.jpg, .jpeg, .png)
+                                                        </FormHelperText>
+                                                    </Box>
+                                                )}
                                             </Paper>
                                             <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
                                                 <FormControlLabel
@@ -315,6 +489,7 @@ function Checkout() {
                                         fontSize: '1rem',
                                         fontWeight: 'bold',
                                     }}
+                                    disabled={isSubmitting}
                                 >
                                     Cancel
                                 </Button>
@@ -332,8 +507,9 @@ function Checkout() {
                                             backgroundColor: 'secondary.main',
                                         }
                                     }}
+                                    disabled={isSubmitting}
                                 >
-                                    Place Order
+                                    {isSubmitting ? 'Processing...' : 'Place Order'}
                                 </Button>
                             </Box>
                         </Form>
