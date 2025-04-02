@@ -181,6 +181,11 @@ export default function ViewOrderDetails() {
                             <Typography variant="body1">
                                 <strong>Payment Method:</strong> {order.paymentMethod}
                             </Typography>
+                            {order.paymentDetails && order.paymentDetails.paymentDate && (
+                            <Typography variant="body1">
+                                <strong>Payment Date:</strong> {formatDate(order.paymentDetails.paymentDate)}
+                            </Typography>
+                            )}
                             {order.outForDeliveryAt && (
                                 <Typography variant="body1">
                                     <strong>Out for Delivery Date:</strong> {formatDate(order.outForDeliveryAt)}
@@ -198,6 +203,25 @@ export default function ViewOrderDetails() {
                             )}
                         </Box>
                     </Grid>
+                    {order.paymentDetails && order.paymentDetails.proofImage && (
+                    <Grid item xs={12}>
+                        <Typography variant="h5" component="h3" fontWeight={500} mb={2}>
+                            Payment Proof
+                        </Typography>
+                        <Box sx={{ maxWidth: 400 }}>
+                            <img 
+                                src={order.paymentDetails.proofImage} 
+                                alt="Payment Proof" 
+                                style={{ 
+                                    width: '100%', 
+                                    height: 'auto',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '4px'
+                                }} 
+                            />
+                        </Box>
+                    </Grid>
+                )}
                 </Grid>
             </Card>
 
