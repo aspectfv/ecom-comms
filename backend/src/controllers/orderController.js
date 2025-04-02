@@ -36,11 +36,10 @@ exports.createOrder = async (req, res) => {
         // Calculate totals
         const orderItems = cart.items.map(item => ({
             itemId: item.itemId._id,
-            quantity: item.quantity,
             price: item.itemId.price
         }));
 
-        const subtotal = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const subtotal = orderItems.reduce((total, item) => total + (item.price), 0);
         const total = subtotal; // Add shipping costs or taxes if needed
 
         // Create order

@@ -75,9 +75,8 @@ export default function Sales() {
                         itemCode: item.itemId.itemCode,
                         itemName: item.itemId.name,
                         owner: item.itemId.owner,
-                        quantity: item.quantity,
                         price: item.price,
-                        total: item.price * item.quantity,
+                        total: item.price,
                         completedAt: order.completedAt
                     });
                 }

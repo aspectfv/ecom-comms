@@ -204,7 +204,7 @@ function Orders() {
                                                             </ListItemAvatar>
                                                         )}
                                                         <ListItemText
-                                                            primary={`${item.itemId?.name || "Item Name Unavailable"} - Quantity: ${item.quantity}`} // Safer access to name
+                                                            primary={`${item.itemId?.name || "Item Name Unavailable"}`} // Safer access to name
                                                             secondary={`Price: ₱${item.price.toFixed(2)}`}
                                                             primaryTypographyProps={{ fontWeight: 'medium' }}
                                                         />

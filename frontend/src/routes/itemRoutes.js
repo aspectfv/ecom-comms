@@ -28,14 +28,14 @@ export async function itemDetailAction({ request, params }) {
     try {
         if (actionType === 'addToCart') {
             // Add the item to cart
-            await addToCart({ itemId, quantity: 1, userId }); // Adjust quantity as needed
+            await addToCart({ itemId, userId });
 
             // Return to same page
             return null;
 
         } else if (actionType === 'buyNow') {
             // Add to cart first (optional)
-            await addToCart({ itemId, quantity: 1, userId });
+            await addToCart({ itemId, userId });
 
             // Redirect to checkout
             return redirect('/checkout');

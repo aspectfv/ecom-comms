@@ -164,11 +164,9 @@ const seedDatabase = async () => {
             items: [
                 {
                     itemId: items[0]._id,
-                    quantity: 1
                 },
                 {
                     itemId: items[3]._id,
-                    quantity: 2
                 }
             ],
             updatedAt: Date.now()
@@ -180,7 +178,6 @@ const seedDatabase = async () => {
             items: [
                 {
                     itemId: items[2]._id,
-                    quantity: 1
                 }
             ],
             updatedAt: Date.now()
@@ -195,12 +192,10 @@ const seedDatabase = async () => {
             items: [
                 {
                     itemId: items[1]._id,
-                    quantity: 1,
                     price: items[1].price
                 },
                 {
                     itemId: items[4]._id,
-                    quantity: 1,
                     price: items[4].price
                 }
             ],
@@ -227,7 +222,6 @@ const seedDatabase = async () => {
             items: [
                 {
                     itemId: items[3]._id,
-                    quantity: 1,
                     price: items[3].price
                 }
             ],

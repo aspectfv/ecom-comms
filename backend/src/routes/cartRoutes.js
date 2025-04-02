@@ -6,6 +6,5 @@ const { authenticate } = require('../utils/auth');
 router.get('/', authenticate, cartController.getCart);
 router.post('/add', authenticate, cartController.addToCart);
 router.delete('/remove/:itemId', authenticate, cartController.removeFromCart);
-router.put('/update/:itemId', authenticate, cartController.updateCartItem);
 
 module.exports = router;

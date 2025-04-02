@@ -25,7 +25,7 @@ import Footer from './Footer';
 function Cart() {
     const cartData = useLoaderData();
     const items = cartData.items || [];
-    const subtotal = items.reduce((total, item) => total + (item.quantity * item.itemId.price), 0);
+    const subtotal = items.reduce((total, item) => total + (item.itemId.price), 0);
     const navigate = useNavigate();
 
     const handleRemove = async (cartItemId) => {
@@ -57,7 +57,6 @@ function Cart() {
                                     <TableRow>
                                         <TableCell>Product Name</TableCell>
                                         <TableCell align="right">Price</TableCell>
-                                        <TableCell align="right">Quantity</TableCell>
                                         <TableCell align="right">Total</TableCell>
                                         <TableCell align="right">Action</TableCell>
                                     </TableRow>
@@ -71,9 +70,8 @@ function Cart() {
                                             <TableCell align="right">
                                                 ₱{item.itemId.price.toFixed(2)}
                                             </TableCell>
-                                            <TableCell align="right">{item.quantity}</TableCell>
                                             <TableCell align="right">
-                                                ₱{(item.quantity * item.itemId.price).toFixed(2)}
+                                                ₱{(item.itemId.price).toFixed(2)}
                                             </TableCell>
                                             <TableCell align="right">
                                                 <IconButton

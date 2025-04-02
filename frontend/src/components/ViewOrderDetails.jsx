@@ -211,7 +211,6 @@ export default function ViewOrderDetails() {
                             <TableRow sx={{ bgcolor: 'background.paper' }}>
                                 <TableCell>Item</TableCell>
                                 <TableCell>Price</TableCell>
-                                <TableCell>Quantity</TableCell>
                                 <TableCell align="right">Total</TableCell>
                             </TableRow>
                         </TableHead>
@@ -220,8 +219,7 @@ export default function ViewOrderDetails() {
                                 <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                     <TableCell component="th" scope="row">{item.itemId.name}</TableCell>
                                     <TableCell>₱{item.price.toFixed(2)}</TableCell>
-                                    <TableCell>{item.quantity}</TableCell>
-                                    <TableCell align="right">₱{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    <TableCell align="right">₱{(item.price).toFixed(2)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

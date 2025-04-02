@@ -35,7 +35,7 @@ import { useState, useEffect } from 'react';
 
 function Checkout() {
     const { items = [] } = useLoaderData();
-    const subtotal = items.reduce((total, item) => total + (item.itemId.price * item.quantity), 0);
+    const subtotal = items.reduce((total, item) => total + (item.itemId.price), 0);
     
     const [deliveryMode, setDeliveryMode] = useState('');
     const [shippingFee, setShippingFee] = useState(0);
@@ -84,7 +84,6 @@ function Checkout() {
     };
 
     const handleSubmit = (event) => {
-        event.preventDefault();
         setOpen(true);
     };
 
@@ -128,7 +127,7 @@ function Checkout() {
                                                 secondary={
                                                     <>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            ₱{item.itemId.price.toFixed(2)} × {item.quantity}
+                                                            ₱{item.itemId.price.toFixed(2)}
                                                         </Typography>
                                                         {item.itemId.inStock && (
                                                             <Chip
@@ -142,7 +141,7 @@ function Checkout() {
                                                 }
                                             />
                                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                                ₱{(item.itemId.price * item.quantity).toFixed(2)}
+                                                ₱{(item.itemId.price).toFixed(2)}
                                             </Typography>
                                         </ListItem>
                                     ))}

@@ -10,6 +10,6 @@ router.get('/:id', itemController.getItemById);
 // Protected routes
 router.post('/', authenticate, authorize(['staff', 'admin']), itemController.createItem);
 router.put('/:id', authenticate, authorize(['admin']), itemController.updateItem);
-router.delete('/:id', authenticate, authorize(['staff', 'admin']), itemController.deleteItem);
+router.delete('/:id', itemController.deleteItem);
 
 module.exports = router;

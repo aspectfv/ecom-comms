@@ -32,7 +32,6 @@ export const deleteItem = (itemId) => api.delete(`/items/${itemId}`);
 export const getCart = () => api.get('/cart');
 export const addToCart = (itemData) => api.post('/cart/add', itemData);
 export const removeFromCart = (itemId) => api.delete(`/cart/remove/${itemId}`);
-export const updateCartItem = (itemId, updateData) => api.put(`/cart/update/${itemId}`, updateData);
 
 // Order routes
 export const getAllOrders = () => api.get('/orders'); 
