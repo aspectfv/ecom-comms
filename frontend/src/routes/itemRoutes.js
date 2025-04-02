@@ -41,6 +41,7 @@ export async function itemDetailAction({ request, params }) {
             return null;
         } else if (actionType === 'buyNow') {
             // Redirect to checkout with buyNow parameter
+            await addToCart({ itemId, userId });
             return redirect(`/checkout?buyNow=${itemId}`);
         }
     } catch (error) {

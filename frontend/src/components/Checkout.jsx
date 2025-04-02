@@ -96,31 +96,14 @@ function Checkout() {
     };
 
     const handleSubmit = (event) => {
-        event.preventDefault();
         setIsSubmitting(true);
         
-        // If e-wallet is selected but no proof is uploaded, show error
         if (paymentMethod === 'e-wallet' && !paymentProof) {
             setUploadError('Please upload proof of payment for E-wallet transactions');
             setIsSubmitting(false);
             return;
         }
         
-        // Create a new FormData object from the form
-        const formData = new FormData(formRef.current);
-        
-        // Manually add the payment proof file if it exists
-        if (paymentProof && paymentMethod === 'e-wallet') {
-            formData.append('paymentProof', paymentProof);
-        }
-        
-        // Submit the form with the FormData
-        submit(formData, {
-            method: 'post',
-            encType: 'multipart/form-data',
-        });
-        
-        // Show success dialog after form submission
         setOpen(true);
     };
 

@@ -99,7 +99,7 @@ function Cart() {
                                         <Box display="flex" justifyContent="space-between" mb={2}>
                                             <Typography variant="body1">Subtotal:</Typography>
                                             <Typography variant="body1" fontWeight={500}>
-                                                ${subtotal.toFixed(2)}
+                                                ₱{subtotal.toFixed(2)}
                                             </Typography>
                                         </Box>
                                         <Button
