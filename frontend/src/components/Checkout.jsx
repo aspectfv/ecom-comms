@@ -40,7 +40,6 @@ function Checkout() {
     const subtotal = items.reduce((total, item) => total + (item.itemId.price), 0);
     
     const [deliveryMode, setDeliveryMode] = useState('');
-    const [shippingFee, setShippingFee] = useState(0);
     const [total, setTotal] = useState(subtotal);
     const [addressComplete, setAddressComplete] = useState(false);
     const [fullName, setFullName] = useState('');
@@ -60,19 +59,10 @@ function Checkout() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
 
-    // Update shipping fee based on delivery mode
+    // Update total when subtotal changes (free shipping)
     useEffect(() => {
-        if (deliveryMode === 'delivery') {
-            setShippingFee(50);
-        } else if (deliveryMode === 'pickup') {
-            setShippingFee(0);
-        }
-    }, [deliveryMode]);
-
-    // Update total when subtotal or shipping fee changes
-    useEffect(() => {
-        setTotal(subtotal + shippingFee);
-    }, [subtotal, shippingFee]);
+        setTotal(subtotal);
+    }, [subtotal]);
 
     // Check if address is complete
     useEffect(() => {
@@ -202,6 +192,57 @@ function Checkout() {
                     Checkout
                 </Typography>
 
+                {/* Free Shipping Promotional Banner */}
+                <Paper 
+                    elevation={0} 
+                    sx={{ 
+                        bgcolor: 'primary.main', 
+                        color: 'white', 
+                        p: 2, 
+                        mb: 4, 
+                        borderRadius: 2,
+                        background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <Typography variant="h5" fontWeight="bold">
+                                🎉 LIMITED TIME OFFER
+                            </Typography>
+                            <Typography variant="h6" sx={{ mt: 1 }}>
+                                FREE SHIPPING on all orders!
+                            </Typography>
+                            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
+                                Take advantage of our special promotion - ends soon!
+                            </Typography>
+                        </Box>
+                        <LocalShipping sx={{ fontSize: 60, opacity: 0.3 }} />
+                    </Box>
+                    <Box 
+                        sx={{ 
+                            position: 'absolute', 
+                            top: -15, 
+                            right: -15, 
+                            backgroundColor: '#FFD700', 
+                            color: '#000', 
+                            borderRadius: '50%', 
+                            width: 80, 
+                            height: 80, 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center',
+                            transform: 'rotate(15deg)',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        <Typography variant="body1" fontWeight="bold" sx={{ fontSize: '0.9rem', textAlign: 'center' }}>
+                            SAVE<br/>NOW
+                        </Typography>
+                    </Box>
+                </Paper>
+
                 <Grid container spacing={4}>
                     {/* Left Column - Order Summary and Delivery */}
                     <Grid item xs={12} md={7}>
@@ -257,15 +298,30 @@ function Checkout() {
                                     <Typography variant="body1">₱{subtotal.toFixed(2)}</Typography>
                                 </Box>
                                 
-                                {addressComplete && (
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                        <Typography variant="body1">Shipping:</Typography>
-                                        <Typography variant="body1">
-                                            {deliveryMode === 'pickup' ? 'Free' : `₱${shippingFee.toFixed(2)}`}
-                                        </Typography>
-                                    </Box>
-                                )}
                                 
+                                {addressComplete && deliveryMode === 'delivery' && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body1">Shipping:</Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Typography 
+                                            variant="body1" 
+                                            sx={{ 
+                                                textDecoration: 'line-through', 
+                                                color: 'text.secondary',
+                                                mr: 1
+                                            }}
+                                        >
+                                            ₱50.00
+                                        </Typography>
+                                        <Chip 
+                                            label="FREE" 
+                                            size="small" 
+                                            color="success" 
+                                            sx={{ fontWeight: 'bold', height: 24 }}
+                                        />
+                                    </Box>
+                                </Box>
+                                )}
                                 {addressComplete && (
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px dashed #ddd' }}>
                                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
@@ -348,8 +404,8 @@ function Checkout() {
                                                     value={deliveryMode}
                                                     onChange={handleDeliveryModeChange}
                                                 >
-                                                    <MenuItem value="pickup">Pickup (Free)</MenuItem>
-                                                    <MenuItem value="delivery">Delivery (₱50.00 fixed fee)</MenuItem>
+                                                    <MenuItem value="pickup">Pickup</MenuItem>
+                                                    <MenuItem value="delivery">Home Delivery</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -517,6 +573,27 @@ function Checkout() {
 
                     {/* Right Column - Help and Additional Info */}
                     <Grid item xs={12} md={5}>
+                        {/* Free Shipping Information Card */}
+                        <Card sx={{ mb: 4, boxShadow: 3, borderLeft: '4px solid #4CAF50' }}>
+                            <CardContent>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#4CAF50' }}>
+                                    FREE SHIPPING PROMOTION
+                                </Typography>
+                                <Typography variant="body2" sx={{ mb: 2 }}>
+                                    For a limited time, enjoy <strong>FREE shipping</strong> on all orders! 
+                                    No minimum purchase required.
+                                </Typography>
+                                <Typography variant="body2" sx={{ mb: 2 }}>
+                                    This special offer applies to both delivery and pickup options.
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f8f9fa', p: 1.5, borderRadius: 1 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                                        Promotion ends April 15, 2025. Don't miss out!
+                                    </Typography>
+                                </Box>
+                            </CardContent>
+                        </Card>
+
                         <Card sx={{ mb: 4, boxShadow: 3 }}>
                             <CardContent>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
