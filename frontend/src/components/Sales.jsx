@@ -66,18 +66,17 @@ export default function Sales() {
     completedOrders.forEach(order => {
         if (order.status === 'completed' && order.completedAt) {
             order.items.forEach(item => {
-                if (item.itemId && item.itemId.owner) {
+                if (item.itemDetails) {
                     salesData.push({
-                        id: `${order.id}-${item.itemId._id}`,
+                        id: `${order.id}-${item.itemDetails.originalItemId}`,
                         orderId: order.id,
                         orderNumber: order.orderNumber,
-                        itemId: item.itemId._id,
-                        itemCode: item.itemId.itemCode,
-                        itemName: item.itemId.name,
-                        owner: item.itemId.owner,
-                        price: item.price,
-                        total: item.price,
-                        completedAt: order.completedAt
+                        itemId: item.itemDetails.originalItemId,
+                        itemCode: item.itemDetails.itemCode,
+                        itemName: item.itemDetails.name,
+                        itemPrice: item.price,
+                        owner: item.itemDetails.owner,
+                        date: new Date(order.completedAt)
                     });
                 }
             });
@@ -233,7 +232,7 @@ export default function Sales() {
     };
 
     // Calculate total sales
-    const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+    const totalSales = filteredSales.reduce((sum, sale) => sum + sale.itemPrice, 0);
     
     // Group sales by owner for summary
     const salesByOwner = {};
@@ -241,7 +240,7 @@ export default function Sales() {
         if (!salesByOwner[sale.owner]) {
             salesByOwner[sale.owner] = 0;
         }
-        salesByOwner[sale.owner] += sale.total;
+        salesByOwner[sale.owner] += sale.itemPrice;  // Instead of sale.total
     });
     
     // Group sales by month for trend analysis
@@ -253,7 +252,7 @@ export default function Sales() {
         if (!salesByMonth[monthYear]) {
             salesByMonth[monthYear] = 0;
         }
-        salesByMonth[monthYear] += sale.total;
+        salesByMonth[monthYear] += sale.itemPrice;   // Instead of sale.total
     });
     
     // Prepare chart data

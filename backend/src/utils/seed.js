@@ -185,17 +185,39 @@ const seedDatabase = async () => {
 
         console.log('Carts created');
 
-        // Create completed order for customer1
+        // Create completed order for customer1 using embedded item details
         const order1 = await Order.create({
             orderNumber: generateOrderNumber(),
             userId: customer1._id,
             items: [
                 {
-                    itemId: items[1]._id,
+                    itemDetails: {
+                        originalItemId: items[1]._id,
+                        itemCode: items[1].itemCode,
+                        name: items[1].name,
+                        price: items[1].price,
+                        owner: items[1].owner,
+                        type: items[1].type,
+                        category: items[1].category,
+                        description: items[1].description,
+                        condition: items[1].condition,
+                        images: items[1].images
+                    },
                     price: items[1].price
                 },
                 {
-                    itemId: items[4]._id,
+                    itemDetails: {
+                        originalItemId: items[4]._id,
+                        itemCode: items[4].itemCode,
+                        name: items[4].name,
+                        price: items[4].price,
+                        owner: items[4].owner,
+                        type: items[4].type,
+                        category: items[4].category,
+                        description: items[4].description,
+                        condition: items[4].condition,
+                        images: items[4].images
+                    },
                     price: items[4].price
                 }
             ],
@@ -208,6 +230,10 @@ const seedDatabase = async () => {
                 date: new Date(Date.now() + 24 * 60 * 60 * 1000) // Next day delivery
             },
             paymentMethod: 'e-wallet',
+            paymentDetails: {
+                proofImage: 'images/payment-proof.jpg',
+                paymentDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+            },
             subtotal: items[1].price + items[4].price,
             total: items[1].price + items[4].price,
             status: 'completed',
@@ -215,13 +241,24 @@ const seedDatabase = async () => {
             completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
         });
 
-        // Create pending order for customer2
+        // Create pending order for customer2 using embedded item details
         const order2 = await Order.create({
             orderNumber: generateOrderNumber(),
             userId: customer2._id,
             items: [
                 {
-                    itemId: items[3]._id,
+                    itemDetails: {
+                        originalItemId: items[3]._id,
+                        itemCode: items[3].itemCode,
+                        name: items[3].name,
+                        price: items[3].price,
+                        owner: items[3].owner,
+                        type: items[3].type,
+                        category: items[3].category,
+                        description: items[3].description,
+                        condition: items[3].condition,
+                        images: items[3].images
+                    },
                     price: items[3].price
                 }
             ],

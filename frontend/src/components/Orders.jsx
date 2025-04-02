@@ -190,21 +190,21 @@ function Orders() {
                                         <Typography variant="h3" gutterBottom>Order Items</Typography>
                                         <List>
                                             {selectedOrder.items.map((item, index) => (
-                                                <Fragment key={`${item.itemId?._id || index}-${index}`}>
+                                                <Fragment key={`${item.itemDetails.originalItemId || index}-${index}`}>
                                                     <ListItem disablePadding sx={{ py: 1.5 }}>
                                                         {/* Conditionally render Avatar if image exists */}
-                                                        {item.itemId?.images?.[0] && (
+                                                        {item.itemDetails.images?.[0] && (
                                                             <ListItemAvatar>
                                                                 <Avatar
                                                                     variant="square" // Often better for product images
-                                                                    src={item.itemId.images[0]}
-                                                                    alt={item.itemId.name || 'Item image'}
+                                                                    src={item.itemDetails.images[0]}
+                                                                    alt={item.itemDetails.name || 'Item image'}
                                                                     sx={{ width: 56, height: 56, mr: 2, borderRadius: 1 }} // Adjust size and margin
                                                                 />
                                                             </ListItemAvatar>
                                                         )}
                                                         <ListItemText
-                                                            primary={`${item.itemId?.name || "Item Name Unavailable"}`} // Safer access to name
+                                                            primary={`${item.itemDetails.name || "Item Name Unavailable"}`} // Safer access to name
                                                             secondary={`Price: ₱${item.price.toFixed(2)}`}
                                                             primaryTypographyProps={{ fontWeight: 'medium' }}
                                                         />

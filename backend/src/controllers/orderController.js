@@ -8,7 +8,6 @@ exports.getAllOrders = async (req, res) => {
     try {
         const orders = await Order.find()
             .sort({ createdAt: -1 })
-            .populate('items.itemId')
             .populate('userId', 'fullName email');
 
         res.json(orders);
@@ -34,11 +33,32 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
-        // Calculate totals
-        const orderItems = cart.items.map(item => ({
-            itemId: item.itemId._id,
-            price: item.itemId.price
-        }));
+        // Create order items with embedded item details
+        const orderItems = cart.items.map(item => {
+            if (!item.itemId) {
+                throw new Error('Cart item reference is missing');
+            }
+            
+            // Convert the mongoose document to a plain object
+            const itemData = item.itemId.toObject();
+            
+            // Extract fields for the embedded document
+            return {
+                itemDetails: {
+                    originalItemId: item.itemId._id,
+                    itemCode: item.itemId.itemCode,
+                    name: item.itemId.name,
+                    price: item.itemId.price,
+                    owner: item.itemId.owner,
+                    type: item.itemId.type,
+                    category: item.itemId.category,
+                    description: item.itemId.description,
+                    condition: item.itemId.condition,
+                    images: item.itemId.images
+                },
+                price: item.itemId.price
+            };
+        });
 
         const subtotal = orderItems.reduce((total, item) => total + (item.price), 0);
         const total = subtotal; // Add shipping costs or taxes if needed
@@ -76,7 +96,7 @@ exports.createOrder = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error.message || 'Server error' });
     }
 };
 
@@ -84,8 +104,7 @@ exports.createOrder = async (req, res) => {
 exports.getUserOrders = async (req, res) => {
     try {
         const orders = await Order.find({ userId: req.user.id })
-            .sort({ createdAt: -1 })
-            .populate('items.itemId');
+            .sort({ createdAt: -1 });
 
         res.json(orders);
     } catch (error) {
@@ -98,7 +117,6 @@ exports.getUserOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)
-            .populate('items.itemId')
             .populate('userId', 'fullName email');
 
         if (!order) {

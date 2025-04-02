@@ -1,5 +1,4 @@
-import { redirect } from 'react-router-dom';
-import { getCart, createOrder, deleteItem, uploadImage } from '../services/api';
+import { getCart, createOrder, uploadImage } from '../services/api';
 
 export async function checkoutLoader() {
     try {
@@ -75,13 +74,6 @@ export async function checkoutAction({ request }) {
         console.log('Creating order with data:', orderData);
         const orderResponse = await createOrder(orderData);
         console.log('Order created successfully:', orderResponse.data);
-
-        // Clear cart after successful order
-        for (const item of cartData.data.items) {
-            console.log('Removing item from cart:', item.itemId.id);
-            await deleteItem(item.itemId.id);
-        }
-        console.log('Cart cleared successfully');
 
         return 0;
     } catch (error) {

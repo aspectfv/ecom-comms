@@ -5,7 +5,19 @@ const OrderSchema = new Schema({
   orderNumber: { type: String, required: true, unique: true },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   items: [{
-    itemId: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
+    // Replace reference with embedded document containing all item details
+    itemDetails: {
+      originalItemId: { type: Schema.Types.ObjectId, ref: 'Item' }, // Keep original ID for reference
+      itemCode: { type: String, required: true },
+      name: { type: String, required: true },
+      price: { type: Number, required: true },
+      owner: { type: String, required: true },
+      type: { type: String, required: true },
+      category: { type: String, required: true },
+      description: { type: String },
+      condition: { type: String },
+      images: [{ type: String }]
+    },
     price: { type: Number, required: true }
   }],
   deliveryDetails: {
@@ -35,10 +47,42 @@ const OrderSchema = new Schema({
 }, {
     toJSON: {
         transform: function(doc, ret) {
-            ret.id = ret._id
-            delete ret._id
-            delete ret.__v
-            return ret
+            // Transform ID field
+            ret.id = ret._id;
+            delete ret._id;
+            delete ret.__v;
+            
+            // Transform image URLs in all item details
+            if (ret.items && ret.items.length > 0) {
+                const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+                
+                ret.items.forEach(item => {
+                    if (item.itemDetails && item.itemDetails.images && item.itemDetails.images.length > 0) {
+                        item.itemDetails.images = item.itemDetails.images.map(img => {
+                            // Only prepend baseUrl if the image path doesn't already include http:// or https://
+                            if (img && !img.startsWith('http://') && !img.startsWith('https://')) {
+                                // Make sure we don't duplicate slashes
+                                const imgPath = img.startsWith('/') ? img : `/${img}`;
+                                return `${baseUrl}${imgPath}`;
+                            }
+                            return img;
+                        });
+                    }
+                });
+            }
+            
+            // Also transform any payment proof image URL if it exists
+            if (ret.paymentDetails && ret.paymentDetails.proofImage) {
+                const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+                const img = ret.paymentDetails.proofImage;
+                
+                if (img && !img.startsWith('http://') && !img.startsWith('https://')) {
+                    const imgPath = img.startsWith('/') ? img : `/${img}`;
+                    ret.paymentDetails.proofImage = `${baseUrl}${imgPath}`;
+                }
+            }
+            
+            return ret;
         },
     },
 })

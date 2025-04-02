@@ -15,7 +15,8 @@ import {
     TableHead,
     TableRow,
     TableFooter,
-    Typography
+    Typography,
+    Avatar
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
@@ -209,6 +210,7 @@ export default function ViewOrderDetails() {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: 'background.paper' }}>
+                                <TableCell>Image</TableCell>
                                 <TableCell>Item</TableCell>
                                 <TableCell>Price</TableCell>
                                 <TableCell align="right">Total</TableCell>
@@ -217,7 +219,34 @@ export default function ViewOrderDetails() {
                         <TableBody>
                             {order.items.map((item, index) => (
                                 <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                    <TableCell component="th" scope="row">{item.itemId.name}</TableCell>
+                                    <TableCell>
+                                        <Avatar
+                                            src={item.itemDetails.images && item.itemDetails.images.length > 0 
+                                                ? item.itemDetails.images[0] 
+                                                : ''}
+                                            alt={item.itemDetails.name}
+                                            variant="rounded"
+                                            sx={{ width: 60, height: 60, objectFit: 'cover' }}
+                                        />
+                                    </TableCell>
+                                    <TableCell component="th" scope="row">
+                                        <Box>
+                                            <Typography variant="body1" fontWeight={500}>
+                                                {item.itemDetails.name}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {item.itemDetails.itemCode}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', mt: 1 }}>
+                                                <Chip 
+                                                    label={item.itemDetails.type === 'preloved' ? 'Pre-loved' : 'Brand New'} 
+                                                    size="small"
+                                                    color={item.itemDetails.type === 'preloved' ? 'secondary' : 'primary'}
+                                                    sx={{ fontSize: '0.75rem' }}
+                                                />
+                                            </Box>
+                                        </Box>
+                                    </TableCell>
                                     <TableCell>₱{item.price.toFixed(2)}</TableCell>
                                     <TableCell align="right">₱{(item.price).toFixed(2)}</TableCell>
                                 </TableRow>
