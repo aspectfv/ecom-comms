@@ -99,6 +99,7 @@ function Checkout() {
         setIsSubmitting(true);
         
         if (paymentMethod === 'e-wallet' && !paymentProof) {
+            event.preventDefault();
             setUploadError('Please upload proof of payment for E-wallet transactions');
             setIsSubmitting(false);
             return;
